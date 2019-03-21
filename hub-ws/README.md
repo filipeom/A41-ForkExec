@@ -2,7 +2,7 @@
 
 ## Authors
 
-Group CXX
+Group A41
 
 ### Lead developer 
 
