@@ -6,16 +6,9 @@ Distributed Systems 2018-2019, 2nd semester project
 
 ## Authors
 
-Group CXX
-_preencher com identificador de grupo e depois apagar esta linha_
+Group A41
 
-... ... ...
-
-... ... ...
-
-... ... ...
-
-_preencher com nome, número e GitHub ID de membro do grupo e depois apagar esta linha_
+* **Filipe Marques** - *86411* - [filipeom](https://github.com/filipeom)
 
 For each module, the README file must identify the lead developer and the contributors.
 The leads should be evenly divided among the group members.
