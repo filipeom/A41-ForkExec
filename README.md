@@ -9,6 +9,7 @@ Distributed Systems 2018-2019, 2nd semester project
 Group A41
 
 * **Filipe Marques** - *86411* - [filipeom](https://github.com/filipeom)
+* **Jorge Martins** - *86456* - [Jorgecmartins](https://github.com/Jorgecmartins)
 
 For each module, the README file must identify the lead developer and the contributors.
 The leads should be evenly divided among the group members.
