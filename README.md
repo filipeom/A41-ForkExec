@@ -10,6 +10,7 @@ Group A41
 
 * **Filipe Marques** - *86411* - [filipeom](https://github.com/filipeom)
 * **Jorge Martins** - *86456* - [Jorgecmartins](https://github.com/Jorgecmartins)
+* **Paulo Dias** - *86492* -  [PauloACDias](https://github.com/PauloACDias)
 
 For each module, the README file must identify the lead developer and the contributors.
 The leads should be evenly divided among the group members.
