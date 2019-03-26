@@ -6,17 +6,12 @@ Group A41
 
 ### Lead developer 
 
-... ... ...
-
-_preencher com nome, número e GitHub ID de membro do grupo que liderou esta parte e depois apagar esta linha_
+* **Filipe Marques** - *86411* - [filipeom](https://github.com/filipeom)
 
 ### Contributors
 
-... ... ...
-
-... ... ...
-
-_preencher com nome, número e GitHub ID dos membro do grupo que contribuiram com código para esta parte e depois apagar esta linha_
+* **Jorge Martins** - *86456* - [Jorgecmartins](https://github.com/Jorgecmartins)
+* **Paulo Dias** - *86492* - [PauloACDias](https://github.com/PauloACDias)
 
 ## About
 
