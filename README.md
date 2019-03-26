@@ -6,7 +6,7 @@ Distributed Systems 2018-2019, 2nd semester project
 
 ## Authors
 
-Group A41
+Group **A41**
 
 * **Filipe Marques** - *86411* - [filipeom](https://github.com/filipeom)
 * **Jorge Martins** - *86456* - [Jorgecmartins](https://github.com/Jorgecmartins)
