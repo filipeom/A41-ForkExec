@@ -1,16 +1,23 @@
 package com.forkexec.hub.ws;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.jws.WebService;
 
 import com.forkexec.hub.domain.Hub;
+import com.forkexec.rst.ws.cli.RestaurantClient;
+import com.forkexec.rst.ws.cli.RestaurantClientException;
+
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
  * below "map" the Java class to the WSDL definitions.
  */
-@WebService(endpointInterface = "com.forkexec.pts.ws.HubPortType",
+@WebService(endpointInterface = "com.forkexec.hub.ws.HubPortType",
             wsdlLocation = "HubService.wsdl",
             name ="HubWebService",
             portName = "HubPort",
@@ -102,21 +109,36 @@ public class HubPortImpl implements HubPortType {
 	/** Diagnostic operation to check if service is running. */
 	@Override
 	public String ctrlPing(String inputMessage) {
-		// If no input is received, return a default name.
+    StringBuilder builder = new StringBuilder();
+    String UDDIUrl = endpointManager.getUddiNaming().getUDDIUrl();
+
+    // If no input is received, return a default name.
 		if (inputMessage == null || inputMessage.trim().length() == 0)
-			inputMessage = "friend";
+		  inputMessage = "friend";
 
-		// If the service does not have a name, return a default.
-		String wsName = endpointManager.getWsName();
+	  // If the service does not have a name, return a default.
+    String wsName = endpointManager.getWsName();
 		if (wsName == null || wsName.trim().length() == 0)
-			wsName = "Hub";
+		  wsName = "Hub";
 
-		// Build a string with a message to return.
-		StringBuilder builder = new StringBuilder();
-		builder.append("Hello ").append(inputMessage);
+	  // Build a string with a message to return.
+    builder.append("Hello ").append(inputMessage);
 		builder.append(" from ").append(wsName);
+
+    // Ping all available restaurants
+    try {
+      Collection<UDDIRecord> rstRecords = endpointManager.getUddiNaming().listRecords("A41_Restaurant%");
+
+      for (UDDIRecord record : rstRecords) {
+        RestaurantClient rstClient = new RestaurantClient(UDDIUrl, record.getOrgName());
+        builder.append("\n").append(rstClient.ctrlPing(inputMessage));
+      }
+
+    } catch (UDDINamingException | RestaurantClientException e) {
+      System.err.println(e.getMessage());
+    }
 		return builder.toString();
-	}
+  }
 
 	/** Return all variables to default values. */
 	@Override
