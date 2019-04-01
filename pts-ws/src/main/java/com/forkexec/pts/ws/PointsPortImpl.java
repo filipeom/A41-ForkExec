@@ -25,21 +25,32 @@ public class PointsPortImpl implements PointsPortType {
 
     @Override
 	public void activateUser(final String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
-        //TODO
-        
-        //Validate email
-        //if not valid throw exception
 
         if (userEmail != null) {
             Points points = Points.getInstance();
-            points.addCustomer(userEmail);
-        }
+
+            //TODO - validate email
+            if (!points.userExists(userEmail))
+                points.addUser(userEmail);
+            else
+             throwEmailAlreadyExists("userEmail already exists");
+
+        } else 
+            throwInvalidEmail("userEmail cannot be null");
+
       
     }
 
     @Override
     public int pointsBalance(final String userEmail) throws InvalidEmailFault_Exception {
         //TODO
+        if (userEmail != null) {
+            Points points = Points.getInstance();
+
+            //TODO - validate email
+            return points.getUserPoints(userEmail);
+
+        }
       return -1;
     }
 
@@ -103,5 +114,11 @@ public class PointsPortImpl implements PointsPortType {
         final EmailAlreadyExistsFault faultInfo = new EmailAlreadyExistsFault();
         faultInfo.message = message;
         throw new EmailAlreadyExistsFault_Exception(message, faultInfo);
+    }
+
+    private void throwInvalidEmail(final String message) throws InvalidEmailFault_Exception {
+        final InvalidEmailFault  faultInfo = new InvalidEmailFault();
+        faultInfo.message = message;
+        throw new InvalidEmailFault_Exception(message, faultInfo);
     }
 }

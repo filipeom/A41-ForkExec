@@ -22,9 +22,9 @@ public class Points {
      */
     private final AtomicInteger initialBalance = new AtomicInteger(DEFAULT_INITIAL_BALANCE);
     /**
-     *  Map structure to keep state of customers
+     *  Map structure to keep state of users
      */
-    private final Map<String, Customer> customers = new ConcurrentHashMap<>();
+    private final Map<String, User> users = new ConcurrentHashMap<>();
 
 
     // Singleton -------------------------------------------------------------
@@ -51,8 +51,29 @@ public class Points {
      * @param userEmail
      * @return
      */
-    public void addCustomer(String userEmail) {
-        customers.put(userEmail, new Customer(userEmail, initialBalance.get()));
+    public void addUser(String userEmail) {
+        users.put(userEmail, new User(userEmail, initialBalance.get()));
+    }
+    /**
+     * 
+     * @param userEmail
+     * @return
+     */
+    public boolean userExists(String userEmail) {
+        return users.get(userEmail) != null ? true : false;
+    }
+    /**
+     * TODO - what to return if userEmail not in the database
+     * @param userEmail
+     * @return
+     */
+    public int getUserPoints(String userEmail) {
+        User user = users.get(userEmail);
+
+        if (user != null) {
+            return user.getPoints();
+        }
+        return 0; //FIX
     }
 
 }
