@@ -1,6 +1,7 @@
 package com.forkexec.pts.ws;
 
 import javax.jws.WebService;
+import com.forkexec.pts.domain.Points;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -25,6 +26,15 @@ public class PointsPortImpl implements PointsPortType {
     @Override
 	public void activateUser(final String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
         //TODO
+        
+        //Validate email
+        //if not valid throw exception
+
+        if (userEmail != null) {
+            Points points = Points.getInstance();
+            points.addCustomer(userEmail);
+        }
+      
     }
 
     @Override
@@ -87,5 +97,11 @@ public class PointsPortImpl implements PointsPortType {
         final BadInitFault faultInfo = new BadInitFault();
         faultInfo.message = message;
         throw new BadInitFault_Exception(message, faultInfo);
+    }
+
+    private void throwEmailAlreadyExists(final String message) throws EmailAlreadyExistsFault_Exception {
+        final EmailAlreadyExistsFault faultInfo = new EmailAlreadyExistsFault();
+        faultInfo.message = message;
+        throw new EmailAlreadyExistsFault_Exception(message, faultInfo);
     }
 }

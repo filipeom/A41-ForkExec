@@ -1,6 +1,10 @@
 package com.forkexec.pts.domain;
 
+
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 /**
  * Points
@@ -17,6 +21,11 @@ public class Points {
      * Global with the current value for the initial balance of every new client
      */
     private final AtomicInteger initialBalance = new AtomicInteger(DEFAULT_INITIAL_BALANCE);
+    /**
+     *  Map structure to keep state of customers
+     */
+    private final Map<String, Customer> customers = new ConcurrentHashMap<>();
+
 
     // Singleton -------------------------------------------------------------
 
@@ -37,6 +46,13 @@ public class Points {
         return SingletonHolder.INSTANCE;
     }
 
+    /**
+     * Checks if userEmail already exists if not add it
+     * @param userEmail
+     * @return
+     */
+    public void addCustomer(String userEmail) {
+        customers.put(userEmail, new Customer(userEmail, initialBalance.get()));
+    }
 
-    //TODO
 }
