@@ -3,6 +3,9 @@ package com.forkexec.pts.domain;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.komparator.supplier.domain.QuantityException;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -63,17 +66,31 @@ public class Points {
         return users.get(userEmail) != null ? true : false;
     }
     /**
-     * TODO - what to return if userEmail not in the database
+     * 
      * @param userEmail
      * @return
      */
     public int getUserPoints(String userEmail) {
         User user = users.get(userEmail);
 
-        if (user != null) {
-            return user.getPoints();
-        }
-        return 0; //FIX
+        return user.getPoints();
     }
 
+    public void spendUserPoints(String userEmail, int pointsToSpend) throws QuantityException {
+
+        User user = users.get(userEmail);
+        
+        synchronized(user) {
+            int balance = user.getPoints() - pointsToSpend;
+            
+            if (balance < 0) {
+                String message = String.format("Cost is %d, yet user only has %d points", pointsToSpend, user.getPoints());
+                throw new QuantityException(message);
+            }
+            
+            user.setBalance(balance);
+        }
+    }
+
+    
 }

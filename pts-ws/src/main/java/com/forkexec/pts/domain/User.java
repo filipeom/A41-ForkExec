@@ -23,4 +23,8 @@ public class User {
         this.points += points;
     }
 
+    public void setBalance(int points) {
+        this.points = points;
+    }
+
 }
