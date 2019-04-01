@@ -76,7 +76,18 @@ public class Points {
         return user.getPoints();
     }
 
-    public void spendUserPoints(String userEmail, int pointsToSpend) throws QuantityException {
+    public int addUserPoints(String userEmail, int pointsToAdd) {
+        User user = users.get(userEmail);
+
+        synchronized(user) {
+            int balance = user.getPoints() + pointsToAdd;
+            
+            user.setBalance(balance);
+            return balance;
+        }
+    }
+
+    public int spendUserPoints(String userEmail, int pointsToSpend) throws QuantityException {
 
         User user = users.get(userEmail);
         
@@ -89,8 +100,8 @@ public class Points {
             }
             
             user.setBalance(balance);
+            return balance;
         }
     }
 
-    
 }

@@ -9,7 +9,13 @@ import org.komparator.supplier.domain.QuantityException;
  * This class implements the Web Service port type (interface). The annotations
  * below "map" the Java class to the WSDL definitions.
  */
-@WebService(endpointInterface = "com.forkexec.pts.ws.PointsPortType", wsdlLocation = "PointsService.wsdl", name = "PointsWebService", portName = "PointsPort", targetNamespace = "http://ws.pts.forkexec.com/", serviceName = "PointsService")
+@WebService(endpointInterface = "com.forkexec.pts.ws.PointsPortType", 
+            wsdlLocation = "PointsService.wsdl", 
+            name = "PointsWebService", 
+            portName = "PointsPort", 
+            targetNamespace = "http://ws.pts.forkexec.com/", 
+            serviceName = "PointsService")
+
 public class PointsPortImpl implements PointsPortType {
 
     /**
@@ -60,7 +66,18 @@ public class PointsPortImpl implements PointsPortType {
     @Override
     public int addPoints(final String userEmail, final int pointsToAdd)
 	    throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-        //TODO
+        
+        if (pointsToAdd < 0)  throwInvalidPoints("Cant add negative points");
+
+        if (userEmail != null) {
+            Points points = Points.getInstance();
+
+            if (points.userExists(userEmail)) {
+                return points.addUserPoints(userEmail, pointsToAdd);
+            }
+        }
+        
+        throwInvalidEmail("User email is invalid.");
         return -1;
     }
 
@@ -75,7 +92,7 @@ public class PointsPortImpl implements PointsPortType {
 
             if (points.userExists(userEmail)) {
                 try {
-                    points.spendUserPoints(userEmail, pointsToSpend);
+                    return points.spendUserPoints(userEmail, pointsToSpend);
                 }   catch(QuantityException qe) { 
                         throwNotEnoughBalance("Points are insufficient."); 
                 }
