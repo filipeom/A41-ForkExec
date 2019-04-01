@@ -53,27 +53,19 @@ public class Points {
         initialBalance.set(DEFAULT_INITIAL_BALANCE);
     }
 
-    /**
-     * Checks if userEmail already exists if not add it
-     * @param userEmail
-     * @return
-     */
+    /*public void setInitialBalance(int balance) {
+        this.DEFAULT_INITIAL_BALANCE = balance;
+    }*/
+
+
     public void addUser(String userEmail) {
         users.put(userEmail, new User(userEmail, initialBalance.get()));
     }
-    /**
-     * 
-     * @param userEmail
-     * @return
-     */
+
     public boolean userExists(String userEmail) {
         return users.get(userEmail) != null ? true : false;
     }
-    /**
-     * 
-     * @param userEmail
-     * @return
-     */
+
     public int getUserPoints(String userEmail) {
         User user = users.get(userEmail);
 
@@ -107,6 +99,4 @@ public class Points {
             return balance;
         }
     }
-
-
 }

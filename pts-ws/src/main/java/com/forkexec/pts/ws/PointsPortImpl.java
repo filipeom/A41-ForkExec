@@ -127,14 +127,15 @@ public class PointsPortImpl implements PointsPortType {
     /** Return all variables to default values. */
     @Override
     public void ctrlClear() {
-        //TODO
         Points.getInstance().reset();
     }
 
     /** Set variables with specific values. */
     @Override
     public void ctrlInit(final int startPoints) throws BadInitFault_Exception {
-        //TODO
+        if (startPoints < 0) throwBadInit("User should not start with negative points");
+
+       // Points.setInitialBalance(startPoints);
     }
 
     // Exception helpers -----------------------------------------------------
