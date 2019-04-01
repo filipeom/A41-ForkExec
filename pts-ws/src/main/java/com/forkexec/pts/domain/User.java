@@ -10,7 +10,7 @@ public class User {
         this.points = points;
     }
 
-    public int getPoints() {
+    public synchronized int getPoints() {
         return this.points;
     } 
 
@@ -18,7 +18,7 @@ public class User {
         return this.email;
     }
 
-    public void setBalance(int points) {
+    public synchronized void setBalance(int points) {
         this.points = points;
     }
 

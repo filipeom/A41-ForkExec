@@ -3,9 +3,8 @@ package com.forkexec.pts.domain;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.komparator.supplier.domain.QuantityException;
 import java.util.concurrent.ConcurrentHashMap;
+import org.komparator.supplier.domain.QuantityException;
 
 
 /**

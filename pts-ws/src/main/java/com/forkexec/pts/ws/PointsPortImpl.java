@@ -45,8 +45,6 @@ public class PointsPortImpl implements PointsPortType {
 
         } else 
             throwInvalidEmail("User email cannot be null.");
-
-      
     }
 
     @Override
