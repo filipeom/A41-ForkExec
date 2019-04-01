@@ -67,7 +67,7 @@ public class PointsPortImpl implements PointsPortType {
     public int addPoints(final String userEmail, final int pointsToAdd)
 	    throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
         
-        if (pointsToAdd < 0)  throwInvalidPoints("Cant add negative points");
+        if (pointsToAdd < 0) throwInvalidPoints("Cant add negative points");
 
         if (userEmail != null) {
             Points points = Points.getInstance();
@@ -128,6 +128,7 @@ public class PointsPortImpl implements PointsPortType {
     @Override
     public void ctrlClear() {
         //TODO
+        Points.getInstance().reset();
     }
 
     /** Set variables with specific values. */

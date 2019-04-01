@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.komparator.supplier.domain.QuantityException;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -47,6 +46,11 @@ public class Points {
 
     public static synchronized Points getInstance() {
         return SingletonHolder.INSTANCE;
+    }
+
+    public void reset() {
+        users.clear();
+        initialBalance.set(DEFAULT_INITIAL_BALANCE);
     }
 
     /**
@@ -103,5 +107,6 @@ public class Points {
             return balance;
         }
     }
+
 
 }

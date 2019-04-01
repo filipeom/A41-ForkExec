@@ -18,11 +18,6 @@ public class User {
         return this.email;
     }
 
-    //TODO
-    public void changeBalance(int points) {
-        this.points += points;
-    }
-
     public void setBalance(int points) {
         this.points = points;
     }
