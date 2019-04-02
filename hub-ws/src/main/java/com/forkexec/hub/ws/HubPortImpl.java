@@ -113,15 +113,15 @@ public class HubPortImpl implements HubPortType {
     }
 
     try {
-      getPointsClient("A41_Points1").addPoints(userId, moneyToAdd);
+      getPointsClient("A41_Points1").addPoints(userId, convertEURpoints(moneyToAdd));
 
     } catch(InvalidEmailFault_Exception e) {
       throwInvalidUserId("Email address is not valid!");
-    } catch(InvalidPointsFault_Exception e) {
+    } catch(InvalidPointsFault_Exception | InvalidMoneyFault_Exception e) {
       throwInvalidMoney("Invalid money number!");
     } catch(UDDINamingException | PointsClientException e) {
       throw new RuntimeException("Unable to get Points Client.");
-    }
+    } 
     return;
   }
 
@@ -266,6 +266,25 @@ public class HubPortImpl implements HubPortType {
     return;
   } 
 
+
+  /** Convert EUR to points */
+  public int convertEURpoints(int money) throws InvalidMoneyFault_Exception {
+    int points = 0;
+    switch(money) {
+      case 10:
+        points = 1000; break;
+      case 20:
+        points = 2100; break;
+      case 30:
+        points = 3300; break;
+      case 50:
+        points = 5500; break;
+      default:
+        throwInvalidMoney("Unable to convert that quantity(EUR).");
+
+    }
+    return points;
+  }
 
   /** Set variables with specific values. */
   @Override
