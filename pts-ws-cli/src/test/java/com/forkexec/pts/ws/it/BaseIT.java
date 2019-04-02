@@ -44,9 +44,11 @@ public class BaseIT {
 			client = new PointsClient(wsURL);
 		}
 		client.setVerbose("true".equalsIgnoreCase(verboseEnabled));
+    client.ctrlClear();
 	}
 
 	@AfterClass
 	public static void cleanup() {
+    client.ctrlClear();
 	}
 }
