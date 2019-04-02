@@ -1,17 +1,17 @@
-package com.forkexec.hub.ws.cli;
+package pt.ulisboa.tecnico.sdis.ws.cli;
 
 /** 
  * Client application. 
  * 
- * Looks for Hub using UDDI and arguments provided
+ * Looks for CreditCard using UDDI and arguments provided
  */
-public class HubClientApp {
+public class CreditCardClientApp {
 
 	public static void main(String[] args) throws Exception {
 		// Check arguments.
 		if (args.length == 0) {
 			System.err.println("Argument(s) missing!");
-			System.err.println("Usage: java " + HubClientApp.class.getName() + " wsURL OR uddiURL wsName");
+			System.err.println("Usage: java " + CreditCardClientApp.class.getName() + " wsURL OR uddiURL wsName");
 			return;
 		}
 		String uddiURL = null;
@@ -25,23 +25,29 @@ public class HubClientApp {
 		}
 
 		// Create client.
-		HubClient client = null;
+		CreditCardClient client = null;
 
 		if (wsURL != null) {
 			System.out.printf("Creating client for server at %s%n", wsURL);
-			client = new HubClient(wsURL);
+			client = new CreditCardClient(wsURL);
 		} else if (uddiURL != null) {
 			System.out.printf("Creating client using UDDI at %s for server with name %s%n", uddiURL, wsName);
-			client = new HubClient(uddiURL, wsName);
+			client = new CreditCardClient(uddiURL, wsName);
 		}
 
 		// The following remote invocation is just a basic example.
 		// The actual tests are made using JUnit.
 
+      
 		System.out.println("Invoke ping()...");
-		String result = client.ctrlPing("A41_Hub_Client");
+		String result = client.ping("A41_CreditCard_Client");
 		System.out.print("Result: ");
 		System.out.println(result);
+      
+    System.out.println("Invoke validateNumber()...");
+    boolean res = client.validateNumber("4024007102923926");
+    System.out.print("Result: ");
+    System.out.println(res);
 	}
 
 }
