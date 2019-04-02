@@ -3,21 +3,26 @@ package com.forkexec.hub.ws;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import javax.jws.WebService;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 import java.lang.RuntimeException;
 
+import javax.jws.WebService;
+
 import com.forkexec.hub.domain.Hub;
+import com.forkexec.hub.domain.CartItem;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
 import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
+import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 
 import com.forkexec.rst.ws.Menu;
 import com.forkexec.rst.ws.MenuId;
 import com.forkexec.rst.ws.MenuInit;
+import com.forkexec.rst.ws.MenuOrder;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
 
 import com.forkexec.rst.ws.cli.RestaurantClient;
@@ -125,38 +130,127 @@ public class HubPortImpl implements HubPortType {
     return;
   }
 
-
   @Override
   public List<Food> searchDeal(String description) throws InvalidTextFault_Exception {
-    // TODO return lowest price menus first
-    return null;
+    if (description == null)
+      throwInvalidText("Description cannot be null!");
+
+    List<Food> foodList = new ArrayList<Food>();
+    try {
+      for (UDDIRecord record : getRestaurants()) {
+        RestaurantClient rstClient = new RestaurantClient(record.getUrl());
+        for (Menu menu : rstClient.searchMenus(description))
+          foodList.add(newFood(menu, record.getOrgName()));
+      }
+    } catch (UDDINamingException | RestaurantClientException e) {
+      throw new RuntimeException("Unable to create Restaurant Client");
+    } catch (Exception e) {
+      throwInvalidText("Description is malformed!");
+    }
+    Collections.sort(foodList, Hub.PRICE_COMPARATOR);
+    return foodList;
   }
 
   @Override
   public List<Food> searchHungry(String description) throws InvalidTextFault_Exception {
-    // TODO return lowest preparation time first
-    return null;
-  }
+    if (description == null)
+      throwInvalidText("Description cannot be null!");
 
+    List<Food> foodList = new ArrayList<Food>();
+    try {
+      for (UDDIRecord record : getRestaurants()) {
+        RestaurantClient rstClient = new RestaurantClient(record.getUrl());
+        for (Menu menu : rstClient.searchMenus(description))
+          foodList.add(newFood(menu, record.getOrgName()));
+      }
+    } catch (UDDINamingException | RestaurantClientException e) {
+      throw new RuntimeException("Unable to create Restaurant Client");
+    } catch (Exception e) {
+      throwInvalidText("Description is malformed!");
+    }
+    Collections.sort(foodList, Hub.PREPARATION_TIME_COMPARATOR);
+    return foodList;
+  }
 
   @Override
   public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
     throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
-    // TODO 
+    if (userId == null)
+      throwInvalidUserId("User identifier cannot be null!");
+    userId = userId.trim();
+    if (userId.length() == 0)
+      throwInvalidUserId("User identifier cannot be whitespace or empty!");
+    if (foodId == null)
+      throwInvalidFoodId("Food identifier cannot be null!");
+    if (foodQuantity <= 0)
+      throwInvalidFoodQuantity("Food quantity has to be bigger than zero!");
 
+    if (!Hub.getInstance().existsUserCart(userId))
+      throw new RuntimeException("User doesn't have any order");
+
+    int price = 0;
+    try {
+      price = getFood(foodId).getPrice();
+      price = price * foodQuantity;
+    } catch (InvalidFoodIdFault_Exception e) {
+      throwInvalidFoodId("Cannot get food object from with this food identifier");
+    }
+
+    Hub.getInstance().addFoodItemToCart(userId, foodId, foodQuantity, price);
+    return;
   }
 
   @Override
   public void clearCart(String userId) throws InvalidUserIdFault_Exception {
-    // TODO 
+    if (userId == null)
+      throwInvalidUserId("User identifier cannot be null!");
+    userId = userId.trim();
+    if (userId.length() == 0)
+      throwInvalidUserId("User identifier cannot be whitespace or empty!");
 
+    if (!Hub.getInstance().existsUserCart(userId))
+      throw new RuntimeException("User doesn't have any order");
+    Hub.getInstance().clearCart(userId);
+    return;
   }
 
   @Override
   public FoodOrder orderCart(String userId)
     throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception {
-    // TODO 
-    return null;
+    if (userId == null)
+      throwInvalidUserId("User identifier cannot be null!");
+    userId = userId.trim();
+    if (userId.length() == 0)
+      throwInvalidUserId("User identifier cannot be whitespace or empty!");
+
+    List<CartItem> cart = Hub.getInstance().getUserCart(userId);
+    if (cart.size() == 0)
+      throwEmptyCart("Cannot order an empty cart!");
+
+    // Sum Cart Price - CartItem price contains sub total of menu (menuPrice * quantity)
+    int totalPrice = cart.stream().mapToInt(o -> o.getPrice()).sum();
+    try {
+      getPointsClient("A41_Points1").spendPoints(userId, totalPrice);
+    } catch (InvalidEmailFault_Exception e) {
+      throwInvalidUserId("User identifier failed in Points");
+    } catch (InvalidPointsFault_Exception | NotEnoughBalanceFault_Exception e) {
+      throwNotEnoguhPoints("Unable to make purchase with current Points.");
+    } catch (Exception e) {
+      throw new RuntimeException("Unable to get Points Client.");
+    }
+
+    FoodOrder order = new FoodOrder();
+    try {
+      for (CartItem item : cart) {
+        getRestaurantClient(item.getFoodId().getRestaurantId())
+          .orderMenu(newMenuId(item.getFoodId().getMenuId()), item.getFoodQuantity());
+        order.getItems().add(newFoodOrderItem(item.getFoodId(), item.getFoodQuantity()));
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("Unchecked Exception.");
+    }
+    order.setFoodOrderId(newFoodOrderId(Hub.getInstance().getFoodOrderId()));
+    return order;
   }
 
   @Override
@@ -201,8 +295,21 @@ public class HubPortImpl implements HubPortType {
 
   @Override
   public List<FoodOrderItem> cartContents(String userId) throws InvalidUserIdFault_Exception {
-    // TODO
-    return null;
+    if (userId == null)
+      throwInvalidUserId("User identifier cannot be null!");
+    userId = userId.trim();
+    if (userId.length() == 0)
+      throwInvalidUserId("User identifier cannot be whitespace or empty");
+
+    if (!Hub.getInstance().existsUserCart(userId))
+      throw new RuntimeException("User doesn't have any order");
+
+    return Hub.getInstance().getUserCart(userId).stream().map(item -> {
+      FoodOrderItem foodItem = new FoodOrderItem();
+      foodItem.setFoodId(item.getFoodId());
+      foodItem.setFoodQuantity(item.getFoodQuantity());
+      return foodItem;
+    }).collect(Collectors.toList());
   }
 
   // Control operations ----------------------------------------------------
@@ -266,26 +373,6 @@ public class HubPortImpl implements HubPortType {
     return;
   } 
 
-
-  /** Convert EUR to points */
-  public int convertEURpoints(int money) throws InvalidMoneyFault_Exception {
-    int points = 0;
-    switch(money) {
-      case 10:
-        points = 1000; break;
-      case 20:
-        points = 2100; break;
-      case 30:
-        points = 3300; break;
-      case 50:
-        points = 5500; break;
-      default:
-        throwInvalidMoney("Unable to convert that quantity(EUR).");
-
-    }
-    return points;
-  }
-
   /** Set variables with specific values. */
   @Override
   public void ctrlInitFood(List<FoodInit> initialFoods) throws InvalidInitFault_Exception {
@@ -321,6 +408,26 @@ public class HubPortImpl implements HubPortType {
       throwInvalidInit("Could not init the points");
     }
     return;
+  }
+
+  //General helpers --------------------------------------------------------
+  
+  public int convertEURpoints(int money) throws InvalidMoneyFault_Exception {
+    int points = 0;
+    switch(money) {
+      case 10:
+        points = 1000; break;
+      case 20:
+        points = 2100; break;
+      case 30:
+        points = 3300; break;
+      case 50:
+        points = 5500; break;
+      default:
+        throwInvalidMoney("Unable to convert that quantity(EUR).");
+
+    }
+    return points;
   }
 
   // View helpers ----------------------------------------------------------
@@ -367,6 +474,25 @@ public class HubPortImpl implements HubPortType {
       initialMenus.add(menuInit);
     }
     return initialMenus;
+  }
+
+  public MenuId newMenuId(String id) {
+    MenuId menuId = new MenuId();
+    menuId.setId(id);
+    return menuId;
+  }
+
+  public FoodOrderId newFoodOrderId(String id) {
+    FoodOrderId foid = new FoodOrderId();
+    foid.setId(id);
+    return foid;
+  }
+
+  public FoodOrderItem newFoodOrderItem(FoodId foodId, int quantity) {
+    FoodOrderItem item = new FoodOrderItem();
+    item.setFoodId(foodId);
+    item.setFoodQuantity(quantity);
+    return item;
   }
 
   // Exception helpers -----------------------------------------------------
@@ -418,5 +544,19 @@ public class HubPortImpl implements HubPortType {
     InvalidUserIdFault faultInfo = new InvalidUserIdFault();
     faultInfo.message = message;
     throw new InvalidUserIdFault_Exception(message, faultInfo);
+  }
+
+  /** Helper to throw a new Empty Cart exception. */
+  private void throwEmptyCart(final String message) throws EmptyCartFault_Exception {
+    EmptyCartFault faultInfo = new EmptyCartFault();
+    faultInfo.message = message;
+    throw new EmptyCartFault_Exception(message, faultInfo);
+  }
+
+  /** Helper to throw a new Not Enought Points exception. */
+  private void throwNotEnoguhPoints(final String message) throws NotEnoughPointsFault_Exception {
+    NotEnoughPointsFault faultInfo = new NotEnoughPointsFault();
+    faultInfo.message = message;
+    throw new NotEnoughPointsFault_Exception(message, faultInfo);
   }
 }
