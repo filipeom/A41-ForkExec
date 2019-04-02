@@ -42,16 +42,18 @@ public class RestaurantPortImpl implements RestaurantPortType {
       throwBadMenuIdFault("Menu identifier cannot be null!");
     String id = menuId.getId().trim();
     if ( id.length() == 0 )
-      throwBadMenuIdFault("Menu identifier cannot be empty or whitespace!");
+      throwBadMenuIdFault("Menu identifier cannot be empty!");
+    if ( id.contains(" ") )
+      throwBadMenuIdFault("Menu identifier cannot be whitespace!");
 
     Restaurant restaurant = Restaurant.getInstance();
+
+    if ( !restaurant.verifyMenu(id) )
+      throwBadMenuIdFault("This menu does not exist!");
+
     RestaurantMenu rm = restaurant.getMenu(id);
     Menu menu = newMenu(rm);
-
-    if ( menu != null )
-      return menu;
-
-		return null;
+    return menu;
 	}
 
 
@@ -61,7 +63,10 @@ public class RestaurantPortImpl implements RestaurantPortType {
       throwBadTextFault("Text cannot be null!");
     String text = descriptionText.trim();
     if ( text.length() == 0 )
-      throwBadTextFault("Text cannot be empty or whitespace!");
+      throwBadTextFault("Text cannot be empty!");
+    if ( text.contains(" ") )
+      throwBadTextFault("Text cannot be whitespace!");
+
 
     Restaurant restaurant = Restaurant.getInstance();
     List<Menu> menus = new ArrayList<Menu>();
@@ -81,28 +86,31 @@ public class RestaurantPortImpl implements RestaurantPortType {
 
     String id = arg0.getId();
     int quantity = arg1;
+    Restaurant restaurant = Restaurant.getInstance();
+    MenuOrder menuOrder = new MenuOrder();
 
     if ( id == null )
       throwBadMenuIdFault("Menu identifier cannot be null!");
     id = id.trim();
     if ( id.length() == 0 )
-      throwBadMenuIdFault("Menu identifier cannot be empty or whitespace!");
+      throwBadMenuIdFault("Menu identifier cannot be empty!");
+    if ( id.contains(" ") )
+      throwBadMenuIdFault("Menu identifier cannot be whitespace!");
+    if ( !restaurant.verifyMenu(id) )
+      throwBadMenuIdFault("This menu does not exist!");
 
     if ( quantity <= 0 )
       throwBadQuantityFault("Quantity must be greater than 0!");
 
-    Restaurant restaurant = Restaurant.getInstance();
-
     try {
-      RestaurantMenuOrder order = restaurant.registerOrder(id, quantity);
-      MenuOrder menuOrder = newMenuOrder(order);
-      return menuOrder;
+        RestaurantMenuOrder order = restaurant.registerOrder(id, quantity);
+        menuOrder = newMenuOrder(order);
     }
     catch(QuantityException qe) {
       throwInsufficientQuantityFault("Cannot order that quantity!");
     }
 
-    return null;
+    return menuOrder;
 	}
 
 	// Control operations ----------------------------------------------------
@@ -145,28 +153,36 @@ public class RestaurantPortImpl implements RestaurantPortType {
         throwBadInitFault("Menu identifier cannot be null!");
       id = id.trim();
       if ( id.length() == 0)
-        throwBadInitFault("Menu identifier cannot be empty or whitespace!");
+        throwBadInitFault("Menu identifier cannot be empty!");
+      if (  id.contains(" ") )
+        throwBadInitFault("Menu identifier cannot be whitespace!");
 
       String entree = m.getMenu().getEntree();
       if ( entree == null )
        	throwBadInitFault("Menu entree cannot be null!");
       entree = entree.trim();
       if ( entree.length() == 0)
-        throwBadInitFault("Menu entree cannot be empty or whitespace!");
+        throwBadInitFault("Menu entree cannot be empty!");
+      if ( entree.contains(" ") )
+        throwBadInitFault("Menu entree cannot be whitespace!");
 
       String plate = m.getMenu().getPlate();
       if ( plate == null )
        	throwBadInitFault("Menu plate cannot be null!");
       plate = plate.trim();
       if ( plate.length() == 0)
-        throwBadInitFault("Menu plate cannot be empty or whitespace!");
+        throwBadInitFault("Menu plate cannot be empty!");
+      if ( plate.contains(" ") )
+        throwBadInitFault("Menu plate cannot be whitespace!");
 
       String dessert = m.getMenu().getDessert();
       if ( dessert == null )
        	throwBadInitFault("Menu dessert cannot be null!");
       dessert = dessert.trim();
       if ( dessert.length() == 0)
-        throwBadInitFault("Menu dessert cannot be empty or whitespace!");
+        throwBadInitFault("Menu dessert cannot be empty!");
+      if ( dessert.contains(" ") )
+        throwBadInitFault("Menu dessert cannot be whitespace!");
 
       int price = m.getMenu().getPrice();
       if ( price <= 0 )

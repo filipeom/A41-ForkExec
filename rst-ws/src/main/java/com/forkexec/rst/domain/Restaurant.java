@@ -1,8 +1,6 @@
 package com.forkexec.rst.domain;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,8 +17,6 @@ public class Restaurant {
 
 
 	private Map<String, RestaurantMenu> menus = new ConcurrentHashMap<>();
-
-	private Map<String, RestaurantMenuOrder> orders = new ConcurrentHashMap<>();
 
 	private AtomicInteger orderIdCounter = new AtomicInteger(0);
 
@@ -47,12 +43,15 @@ public class Restaurant {
 
 	public void reset() {
 		menus.clear();
-		orders.clear();
 		orderIdCounter.set(0);
 	}
 
 	public Set<String> getMenusIDs() {
 		return menus.keySet();
+	}
+
+	public boolean verifyMenu(String menuId) {
+		return menus.containsKey(menuId);
 	}
 
 	public RestaurantMenu getMenu(String menuId) {
@@ -63,9 +62,10 @@ public class Restaurant {
 		menus.put(menuId, new RestaurantMenu(menuId, entree, plate, dessert, price, preparationTime, quantity));
 	}
 
+
 	// MenuOrder -------------------------------------------------------------
 
-	private String generateOrderId(String id) {
+	private synchronized String generateOrderId() {
 		int orderId = orderIdCounter.incrementAndGet();
 		return Integer.toString(orderId);
 	}
@@ -85,9 +85,8 @@ public class Restaurant {
 	public RestaurantMenuOrder registerOrder(String menuId, int quantity) throws QuantityException {
 		RestaurantMenu menu = getMenu(menuId);
 		decreseMenuQuantity(menu, quantity);
-		String id = this.generateOrderId(menuId);
+		String id = this.generateOrderId();
 		RestaurantMenuOrder order = new RestaurantMenuOrder(id, menuId, quantity);
-		orders.put(id, order);
 		return order;
 	}
 
