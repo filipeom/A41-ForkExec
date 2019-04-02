@@ -2,8 +2,9 @@ package com.forkexec.pts.ws;
 
 import javax.jws.WebService;
 import com.forkexec.pts.domain.Points;
-
 import org.komparator.supplier.domain.QuantityException;
+import java.util.regex.Matcher;                               
+import java.util.regex.Pattern;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -35,9 +36,14 @@ public class PointsPortImpl implements PointsPortType {
 	public void activateUser(final String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
 
          if (userEmail != null) {
+            String regex = "^[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*(\\.[a-zA-Z0-9])*$";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher m = pattern.matcher(userEmail);
+
+            if (!m.matches()) throwInvalidEmail("User email is not valid");
+
             Points points = Points.getInstance();
 
-            //TODO - validate email
             if (!points.userExists(userEmail))
                 points.addUser(userEmail);
             else
