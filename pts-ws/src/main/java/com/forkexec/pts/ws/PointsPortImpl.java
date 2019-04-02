@@ -139,7 +139,7 @@ public class PointsPortImpl implements PointsPortType {
     public void ctrlInit(final int startPoints) throws BadInitFault_Exception {
         if (startPoints < 0) throwBadInit("User should not start with negative points");
 
-       // Points.setInitialBalance(startPoints);
+        Points.getInstance().setInitialBalance(startPoints);
     }
 
     // Exception helpers -----------------------------------------------------

@@ -52,10 +52,9 @@ public class Points {
         initialBalance.set(DEFAULT_INITIAL_BALANCE);
     }
 
-    /*public void setInitialBalance(int balance) {
-        this.DEFAULT_INITIAL_BALANCE = balance;
-    }*/
-
+    public void setInitialBalance(int balance) {
+        initialBalance.set(balance);
+    }
 
     public void addUser(String userEmail) {
         users.put(userEmail, new User(userEmail, initialBalance.get()));
