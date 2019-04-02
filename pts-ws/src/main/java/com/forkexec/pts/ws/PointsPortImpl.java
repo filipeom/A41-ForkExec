@@ -1,8 +1,9 @@
 package com.forkexec.pts.ws;
 
-import javax.jws.WebService;
 import com.forkexec.pts.domain.Points;
-import org.komparator.supplier.domain.QuantityException;
+import com.forkexec.pts.domain.QuantityException;
+
+import javax.jws.WebService;
 import java.util.regex.Matcher;                               
 import java.util.regex.Pattern;
 
