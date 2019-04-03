@@ -47,7 +47,6 @@ public class AccountBalanceIT extends BaseIT {
   @After
   public void delete(){
     hubClient.ctrlClear();
-    pointsClient.ctrlClear();
   }
 
 }

@@ -69,7 +69,6 @@ public class LoadAccountIT extends BaseIT {
   @After
   public void delete(){
     hubClient.ctrlClear();
-    pointsClient.ctrlClear();
   }
 
 }

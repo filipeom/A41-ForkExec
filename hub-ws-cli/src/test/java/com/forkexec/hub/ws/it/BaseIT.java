@@ -23,6 +23,7 @@ public class BaseIT {
 
 	protected static HubClient hubClient;
 	protected static PointsClient pointsClient;
+	protected static List<RestaurantClient> restaurantClients = new ArrayList<RestaurantClient>();
 
 	@BeforeClass
 	public static void oneTimeSetup() throws Exception {
@@ -50,9 +51,9 @@ public class BaseIT {
 			hubClient = new HubClient(wsURL);
 		}
 		pointsClient = new PointsClient(uddiURL, "A41_Points1");
-		pointsClient = new PointsClient(uddiURL, "A41_Points1");
-
-
+		for(int i = 1; i <= 2; i++){
+			restaurantClients.add(new RestaurantClient(uddiURL, "A41_Restaurant"+i) );
+		}
 
 		hubClient.setVerbose("true".equalsIgnoreCase(verboseEnabled));
 	}
