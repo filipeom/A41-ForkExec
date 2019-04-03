@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.forkexec.hub.ws.Food;
 import com.forkexec.hub.ws.FoodId;
 
@@ -19,6 +22,7 @@ import com.forkexec.hub.ws.FoodId;
  *
  */
 public class Hub {
+
   /** 
    * Map of user carts. Uses concurrent hash table implementation
    * supporting full concurrency of retrievals and high expected concurrency
@@ -30,6 +34,10 @@ public class Hub {
    * Global food order identifier. Uses lock-free thread-safe single variable
    */
   private AtomicInteger foodOrderId = new AtomicInteger(0);
+
+  private static Pattern validString = Pattern.compile("^[a-zA-Z0-9_-]+$");
+
+  private static Pattern validEmail = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
   /**
    * A comparator for food based on price.
@@ -95,6 +103,18 @@ public class Hub {
     cart.clear();
   }
 
+  public boolean validateId(String id) {
+    if (id != null)
+      return validString.matcher(id).matches() ? true : false;
+    return false;
+  }
+
+  public boolean validateEmail(String email) {
+    if (email != null)
+      return validEmail.matcher(email).matches() ? true : false;
+    return false;
+  }
+
   public synchronized String getFoodOrderId() {
     return Integer.toString(foodOrderId.incrementAndGet());
   }
@@ -109,7 +129,7 @@ public class Hub {
 
   public synchronized void addFoodItemToCart(String uid, 
       FoodId fid, int quantity, int price) {
-    if (uid == null || "".equals(uid))
+    if (!validateEmail(uid))
       return;
 
     if (!existsUserCart(uid)) 

@@ -24,6 +24,9 @@ import com.forkexec.rst.ws.MenuId;
 import com.forkexec.rst.ws.MenuInit;
 import com.forkexec.rst.ws.MenuOrder;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
+import com.forkexec.rst.ws.BadTextFault_Exception;
+import com.forkexec.rst.ws.BadQuantityFault_Exception;
+import com.forkexec.rst.ws.InsufficientQuantityFault_Exception;
 
 import com.forkexec.rst.ws.cli.RestaurantClient;
 import com.forkexec.rst.ws.cli.RestaurantClientException;
@@ -82,28 +85,30 @@ public class HubPortImpl implements HubPortType {
 
   @Override
   public void activateAccount(String userId) throws InvalidUserIdFault_Exception {
-    if (userId == null)
-      throwInvalidUserId("User identifier cannot be null!");
+    if (!Hub.getInstance().validateEmail(userId))
+      throwInvalidUserId("Invalid email!");
 
     try {
       getPointsClient("A41_Points1").activateUser(userId);
 
-    } catch(InvalidEmailFault_Exception | EmailAlreadyExistsFault_Exception e) {
-      throwInvalidUserId("Invalid email address!");
-    } catch(UDDINamingException | PointsClientException e) {
-      throw new RuntimeException("Unable to get Points Client.");
+    } catch(InvalidEmailFault_Exception e) {
+      throwInvalidUserId(e.getMessage());
+    } catch (EmailAlreadyExistsFault_Exception e) {
+      throwInvalidUserId(e.getMessage());
+    } catch(Exception e) {
+      throw new RuntimeException("Failed to lookup Points Service.");
     }
   }
 
   @Override
   public void loadAccount(String userId, int moneyToAdd, String creditCardNumber)
     throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
-    if (userId == null)
-      throwInvalidUserId("User identifier cannot be null!");
-    if (moneyToAdd == 0)
+    if (!Hub.getInstance().validateEmail(userId))
+      throwInvalidUserId("Invalid email!");
+    if (moneyToAdd <= 0)
       throwInvalidMoney("Money to add cannot be zero!");
-    if (creditCardNumber == null)
-      throwInvalidCreditCard("Credit card number cannot be null!");
+    if (!Hub.getInstance().validateId(creditCardNumber))
+      throwInvalidCreditCard("Invalid credit card number!");
 
     try {
       CreditCardClient ccClient = new CreditCardClient();
@@ -112,28 +117,28 @@ public class HubPortImpl implements HubPortType {
         throw new Exception();
 
     } catch(CreditCardClientException e) {
-      throw new RuntimeException("Unable to get Credit Card Client.");
+      throw new RuntimeException("Failed to lookup Credit Card Service.");
     } catch(Exception e) {
-      throwInvalidCreditCard("Invalid credit card number!");
+      throwInvalidCreditCard("Credit card number does not exist!");
     }
 
     try {
       getPointsClient("A41_Points1").addPoints(userId, convertEURpoints(moneyToAdd));
 
     } catch(InvalidEmailFault_Exception e) {
-      throwInvalidUserId("Email address is not valid!");
+      throwInvalidUserId(e.getMessage());
     } catch(InvalidPointsFault_Exception | InvalidMoneyFault_Exception e) {
-      throwInvalidMoney("Invalid money number!");
-    } catch(UDDINamingException | PointsClientException e) {
-      throw new RuntimeException("Unable to get Points Client.");
+      throwInvalidMoney(e.getMessage());
+    } catch(Exception e) {
+      throw new RuntimeException("Failed to lookup Points Service.");
     } 
     return;
   }
 
   @Override
   public List<Food> searchDeal(String description) throws InvalidTextFault_Exception {
-    if (description == null)
-      throwInvalidText("Description cannot be null!");
+    if (!Hub.getInstance().validateId(description))
+      throwInvalidText("Invalid description!");
 
     List<Food> foodList = new ArrayList<Food>();
     try {
@@ -142,10 +147,10 @@ public class HubPortImpl implements HubPortType {
         for (Menu menu : rstClient.searchMenus(description))
           foodList.add(newFood(menu, record.getOrgName()));
       }
-    } catch (UDDINamingException | RestaurantClientException e) {
-      throw new RuntimeException("Unable to create Restaurant Client");
+    } catch (BadTextFault_Exception e) {
+      throwInvalidText(e.getMessage());
     } catch (Exception e) {
-      throwInvalidText("Description is malformed!");
+      throw new RuntimeException("Failed to lookup Restaurant Service.");
     }
     Collections.sort(foodList, Hub.PRICE_COMPARATOR);
     return foodList;
@@ -153,7 +158,7 @@ public class HubPortImpl implements HubPortType {
 
   @Override
   public List<Food> searchHungry(String description) throws InvalidTextFault_Exception {
-    if (description == null)
+    if (!Hub.getInstance().validateId(description))
       throwInvalidText("Description cannot be null!");
 
     List<Food> foodList = new ArrayList<Food>();
@@ -163,10 +168,10 @@ public class HubPortImpl implements HubPortType {
         for (Menu menu : rstClient.searchMenus(description))
           foodList.add(newFood(menu, record.getOrgName()));
       }
-    } catch (UDDINamingException | RestaurantClientException e) {
-      throw new RuntimeException("Unable to create Restaurant Client");
+    } catch (BadTextFault_Exception e) {
+      throwInvalidText(e.getMessage());
     } catch (Exception e) {
-      throwInvalidText("Description is malformed!");
+      throw new RuntimeException("Failed to lookup Restaurant Service.");
     }
     Collections.sort(foodList, Hub.PREPARATION_TIME_COMPARATOR);
     return foodList;
@@ -175,25 +180,22 @@ public class HubPortImpl implements HubPortType {
   @Override
   public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
     throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
-    if (userId == null)
-      throwInvalidUserId("User identifier cannot be null!");
-    userId = userId.trim();
-    if (userId.length() == 0)
-      throwInvalidUserId("User identifier cannot be whitespace or empty!");
+    if (!Hub.getInstance().validateEmail(userId))
+      throwInvalidUserId("Invalid email!");
     if (foodId == null)
-      throwInvalidFoodId("Food identifier cannot be null!");
+      throwInvalidFoodId("Invalid food identifier!");
+    if (!Hub.getInstance().validateId(foodId.getRestaurantId()) ||
+        !Hub.getInstance().validateId(foodId.getMenuId()))
+      throwInvalidFoodId("Invalid food identifier!");
     if (foodQuantity <= 0)
       throwInvalidFoodQuantity("Food quantity has to be bigger than zero!");
-
-    if (!Hub.getInstance().existsUserCart(userId))
-      throw new RuntimeException("User doesn't have any order");
 
     int price = 0;
     try {
       price = getFood(foodId).getPrice();
       price = price * foodQuantity;
     } catch (InvalidFoodIdFault_Exception e) {
-      throwInvalidFoodId("Cannot get food object from with this food identifier");
+      throwInvalidFoodId(e.getMessage());
     }
 
     Hub.getInstance().addFoodItemToCart(userId, foodId, foodQuantity, price);
@@ -202,14 +204,9 @@ public class HubPortImpl implements HubPortType {
 
   @Override
   public void clearCart(String userId) throws InvalidUserIdFault_Exception {
-    if (userId == null)
-      throwInvalidUserId("User identifier cannot be null!");
-    userId = userId.trim();
-    if (userId.length() == 0)
-      throwInvalidUserId("User identifier cannot be whitespace or empty!");
+    if (!Hub.getInstance().validateEmail(userId))
+      throwInvalidUserId("Invalid email!");
 
-    if (!Hub.getInstance().existsUserCart(userId))
-      throw new RuntimeException("User doesn't have any order");
     Hub.getInstance().clearCart(userId);
     return;
   }
@@ -217,26 +214,23 @@ public class HubPortImpl implements HubPortType {
   @Override
   public FoodOrder orderCart(String userId)
     throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception {
-    if (userId == null)
-      throwInvalidUserId("User identifier cannot be null!");
-    userId = userId.trim();
-    if (userId.length() == 0)
-      throwInvalidUserId("User identifier cannot be whitespace or empty!");
+    if (!Hub.getInstance().validateEmail(userId))
+      throwInvalidUserId("Invalid email!");
 
     List<CartItem> cart = Hub.getInstance().getUserCart(userId);
     if (cart.size() == 0)
-      throwEmptyCart("Cannot order an empty cart!");
+      throwEmptyCart("Empty cart!");
 
     // Sum Cart Price - CartItem price contains sub total of menu (menuPrice * quantity)
     int totalPrice = cart.stream().mapToInt(o -> o.getPrice()).sum();
     try {
       getPointsClient("A41_Points1").spendPoints(userId, totalPrice);
     } catch (InvalidEmailFault_Exception e) {
-      throwInvalidUserId("User identifier failed in Points");
+      throwInvalidUserId(e.getMessage());
     } catch (InvalidPointsFault_Exception | NotEnoughBalanceFault_Exception e) {
-      throwNotEnoguhPoints("Unable to make purchase with current Points.");
+      throwNotEnoguhPoints(e.getMessage());
     } catch (Exception e) {
-      throw new RuntimeException("Unable to get Points Client.");
+      throw new RuntimeException("Failed to lookup Points Service.");
     }
 
     FoodOrder order = new FoodOrder();
@@ -246,8 +240,11 @@ public class HubPortImpl implements HubPortType {
           .orderMenu(newMenuId(item.getFoodId().getMenuId()), item.getFoodQuantity());
         order.getItems().add(newFoodOrderItem(item.getFoodId(), item.getFoodQuantity()));
       }
+    
+    } catch (BadMenuIdFault_Exception | BadQuantityFault_Exception | InsufficientQuantityFault_Exception e) {
+      throw new RuntimeException(e.getMessage());
     } catch (Exception e) {
-      throw new RuntimeException("Unchecked Exception.");
+      throw new RuntimeException("Failed to lookup Restaurant Service.");
     }
     order.setFoodOrderId(newFoodOrderId(Hub.getInstance().getFoodOrderId()));
     return order;
@@ -255,16 +252,16 @@ public class HubPortImpl implements HubPortType {
 
   @Override
   public int accountBalance(String userId) throws InvalidUserIdFault_Exception {
-    if (userId == null)
-      throwInvalidUserId("User identifier cannot be null!");
+    if (!Hub.getInstance().validateEmail(userId))
+      throwInvalidUserId("Invalid email!");
 
     try {
       return getPointsClient("A41_Points1").pointsBalance(userId);
 
     } catch(InvalidEmailFault_Exception e) {
-      throwInvalidUserId("Cannot validade email address");
-    } catch(UDDINamingException | PointsClientException e) {
-      throw new RuntimeException("Unable to get Points Client.");
+      throwInvalidUserId(e.getMessage());
+    } catch(Exception e) {
+      throw new RuntimeException("Failed to lookup Points Service.");
     }
     return 0;
   }
@@ -272,34 +269,29 @@ public class HubPortImpl implements HubPortType {
   @Override
   public Food getFood(FoodId foodId) throws InvalidFoodIdFault_Exception {
     if (foodId == null)
-      throwInvalidFoodId("Food Identifier cannot be null!");
-
-    String rstId = foodId.getRestaurantId().trim();
-    String menuId = foodId.getMenuId().trim();
-
-    if (rstId.length() == 0 || menuId.length() == 0)
-      throwInvalidFoodId("Identifiers cannot be empty or whitespace!");
-
+      throwInvalidFoodId("Invalid food identifier!");
+    if (!Hub.getInstance().validateId(foodId.getRestaurantId()) ||
+        !Hub.getInstance().validateId(foodId.getMenuId()))
+      throwInvalidFoodId("Invalid food identifier!");
+ 
     try {
       MenuId mid = new MenuId();
-      mid.setId(menuId);
+      mid.setId(foodId.getMenuId());
 
-      return newFood(getRestaurantClient(rstId).getMenu(mid), rstId);
+      return newFood(getRestaurantClient(foodId.getRestaurantId()).
+          getMenu(mid), foodId.getRestaurantId());
     } catch (BadMenuIdFault_Exception e) {
-      throwInvalidFoodId("Bad menu identfier.");
-    } catch (UDDINamingException | RestaurantClientException e) {
-      throw new RuntimeException("Unable to get Restaurant Client.");
+      throwInvalidFoodId(e.getMessage());
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to lookup Restaurant Service.");
     }
     return null;
   }
 
   @Override
   public List<FoodOrderItem> cartContents(String userId) throws InvalidUserIdFault_Exception {
-    if (userId == null)
-      throwInvalidUserId("User identifier cannot be null!");
-    userId = userId.trim();
-    if (userId.length() == 0)
-      throwInvalidUserId("User identifier cannot be whitespace or empty");
+    if (!Hub.getInstance().validateEmail(userId))
+      throwInvalidUserId("Invalid email!");
 
     if (!Hub.getInstance().existsUserCart(userId))
       throw new RuntimeException("User doesn't have any order");
@@ -394,7 +386,7 @@ public class HubPortImpl implements HubPortType {
 
   @Override
   public void ctrlInitUserPoints(int startPoints) throws InvalidInitFault_Exception {
-    if (startPoints == 0)
+    if (startPoints < 0)
       throwInvalidInit("Start points cannot be zero!");
 
     try {
