@@ -7,107 +7,94 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.forkexec.rst.ws.MenuInit;
-import com.forkexec.rst.ws.Menu;
-import com.forkexec.rst.ws.MenuId;
-import com.forkexec.rst.ws.BadInitFault_Exception;
-import com.forkexec.hub.ws.InvalidTextFault_Exception;
+import com.forkexec.hub.ws.FoodInit;
 import com.forkexec.hub.ws.Food;
+import com.forkexec.hub.ws.FoodId;
+import com.forkexec.hub.ws.InvalidTextFault_Exception;
+import com.forkexec.hub.ws.InvalidInitFault_Exception;
+
 
 public class SearchHungryIT extends BaseIT {
 
   @Before
-  public void setUp() throws BadInitFault_Exception{
+  public void setUp() throws InvalidInitFault_Exception {
 
-      List<MenuInit> menus1 = new ArrayList<MenuInit>();
-      List<MenuInit> menus2 = new ArrayList<MenuInit>();
+      List<FoodInit> foods = new ArrayList<FoodInit>();
 
-    {
-      MenuInit menuInit = new MenuInit();
-      Menu menu = new Menu();
-      MenuId id = new MenuId();
-      id.setId("Menu1");
-      menu.setId(id);
-      menu.setEntree("SopadeLegumes");
-      menu.setPlate("ArrozdeMarisco");
-      menu.setDessert("Arrozdoce");
-      menu.setPrice(10);
-      menu.setPreparationTime(25);
-      menuInit.setMenu(menu);
-      menuInit.setQuantity(5);
-      menus1.add(menuInit);
-    }
-    {
-      MenuInit menuInit = new MenuInit();
-      Menu menu = new Menu();
-      MenuId id = new MenuId();
-      id.setId("Menu2");
-      menu.setId(id);
-      menu.setEntree("Canja");
-      menu.setPlate("CarildeFrango");
-      menu.setDessert("Arrozdoce");
-      menu.setPrice(11);
-      menu.setPreparationTime(15);
-      menuInit.setMenu(menu);
-      menuInit.setQuantity(3);
-      menus1.add(menuInit);
-    }
-    {
-      MenuInit menuInit = new MenuInit();
-      Menu menu = new Menu();
-      MenuId id = new MenuId();
-      id.setId("Menu3");
-      menu.setId(id);
-      menu.setEntree("Canja");
-      menu.setPlate("Pizza");
-      menu.setDessert("Mousse");
-      menu.setPrice(8);
-      menu.setPreparationTime(18);
-      menuInit.setMenu(menu);
-      menuInit.setQuantity(2);
-      menus2.add(menuInit);
-    }
-    {
-      MenuInit menuInit = new MenuInit();
-      Menu menu = new Menu();
-      MenuId id = new MenuId();
-      id.setId("Menu4");
-      menu.setId(id);
-      menu.setEntree("SopadePeixe");
-      menu.setPlate("Arrozdepato");
-      menu.setDessert("Gelatina");
-      menu.setPrice(8);
-      menu.setPreparationTime(20);
-      menuInit.setMenu(menu);
-      menuInit.setQuantity(9);
-      menus2.add(menuInit);
-    }
+      {
+        FoodInit foodInit = new FoodInit();
+        Food food = new Food();
+        FoodId id = new FoodId();
+        id.setMenuId("Menu1");
+        id.setRestaurantId("A41_Restaurant1");
+        food.setId(id);
+        food.setEntree("Canja");
+        food.setPlate("Arroz_de_Marisco");
+        food.setDessert("Arroz_doce");
+        food.setPrice(10);
+        food.setPreparationTime(25);
+        foodInit.setFood(food);
+        foodInit.setQuantity(5);
+        foods.add(foodInit);
+      }
+      {
+        FoodInit foodInit = new FoodInit();
+        Food food = new Food();
+        FoodId id = new FoodId();
+        id.setMenuId("Menu2");
+        id.setRestaurantId("A41_Restaurant1");
+        food.setId(id);
+        food.setEntree("Canja");
+        food.setPlate("Caril_de_Frango");
+        food.setDessert("Arroz_doce");
+        food.setPrice(11);
+        food.setPreparationTime(10);
+        foodInit.setFood(food);
+        foodInit.setQuantity(3);
+        foods.add(foodInit);
+      }
+      {
+        FoodInit foodInit = new FoodInit();
+        Food food = new Food();
+        FoodId id = new FoodId();
+        id.setMenuId("Menu3");
+        id.setRestaurantId("A41_Restaurant1");
+        food.setId(id);
+        food.setEntree("Canja");
+        food.setPlate("Pizza");
+        food.setDessert("Mousse");
+        food.setPrice(8);
+        food.setPreparationTime(18);
+        foodInit.setFood(food);
+        foodInit.setQuantity(2);
+        foods.add(foodInit);
+      }
 
-    restaurantClients.get(0).ctrlInit(menus1);
-    restaurantClients.get(1).ctrlInit(menus2);
+    hubClient.ctrlInitFood(foods);
   }
 
   //Success tests
   @Test
   public void success() throws InvalidTextFault_Exception {
     List<Food> foods = hubClient.searchHungry("Canja");
-    assertEquals(2, foods.size());
-    assertEquals(foods.get(0).getId().getRestaurantId(), "A41_Restaurant1");
-    assertEquals(foods.get(1).getId().getRestaurantId(), "A41_Restaurant2");
+    assertEquals(3, foods.size());
+    assertEquals(foods.get(0).getId().getMenuId(), "Menu2");
+    assertEquals(foods.get(1).getId().getMenuId(), "Menu3");
+    assertEquals(foods.get(2).getId().getMenuId(), "Menu1");
   }
 
   @Test
   public void oneItemSuccess() throws InvalidTextFault_Exception {
     List<Food> foods = hubClient.searchHungry("Mousse");
     assertEquals(1, foods.size());
-    assertEquals(foods.get(0).getId().getRestaurantId(), "A41_Restaurant2");
+    assertEquals(foods.get(0).getId().getMenuId(), "Menu3");
   }
 
   @Test
   public void anotherOneItemSuccess() throws InvalidTextFault_Exception {
     List<Food> foods = hubClient.searchHungry("Frango");
     assertEquals(1, foods.size());
-    assertEquals(foods.get(0).getId().getRestaurantId(), "A41_Restaurant1");
+    assertEquals(foods.get(0).getId().getMenuId(), "Menu2");
   }
 
   @Test

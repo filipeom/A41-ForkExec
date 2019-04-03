@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.ArrayList;
 import com.forkexec.hub.ws.cli.HubClient;
 import com.forkexec.pts.ws.cli.PointsClient;
-import com.forkexec.rst.ws.cli.RestaurantClient;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -23,7 +22,6 @@ public class BaseIT {
 
 	protected static HubClient hubClient;
 	protected static PointsClient pointsClient;
-	protected static List<RestaurantClient> restaurantClients = new ArrayList<RestaurantClient>();
 
 	@BeforeClass
 	public static void oneTimeSetup() throws Exception {
@@ -51,9 +49,6 @@ public class BaseIT {
 			hubClient = new HubClient(wsURL);
 		}
 		pointsClient = new PointsClient(uddiURL, "A41_Points1");
-		for(int i = 1; i <= 2; i++){
-			restaurantClients.add(new RestaurantClient(uddiURL, "A41_Restaurant"+i) );
-		}
 
 		hubClient.setVerbose("true".equalsIgnoreCase(verboseEnabled));
 	}
