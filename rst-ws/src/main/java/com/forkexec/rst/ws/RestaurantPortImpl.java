@@ -146,7 +146,13 @@ public class RestaurantPortImpl implements RestaurantPortType {
     for (MenuInit m : initialMenus) {
 
       if ( m == null )
+        throwBadInitFault("MenuInit cannot be null!");
+
+      if ( m.getMenu() == null)
         throwBadInitFault("Menu cannot be null!");
+
+      if ( m.getMenu().getId() == null )
+        throwBadInitFault("MenuId cannot be null!");
 
       String id = m.getMenu().getId().getId();
       if ( id == null)
@@ -154,7 +160,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
       id = id.trim();
       if ( id.length() == 0)
         throwBadInitFault("Menu identifier cannot be empty!");
-      if (  id.contains(" ") )
+      if ( id.contains(" ") )
         throwBadInitFault("Menu identifier cannot be whitespace!");
 
       String entree = m.getMenu().getEntree();
