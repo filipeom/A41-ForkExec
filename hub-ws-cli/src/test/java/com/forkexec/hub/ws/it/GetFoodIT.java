@@ -139,7 +139,7 @@ public class GetFoodIT extends BaseIT {
      Food food = hubClient.getFood(foodId);
    }
 
-   /*@Test(expected = InvalidFoodIdFault_Exception.class)
+   @Test(expected = InvalidFoodIdFault_Exception.class)
    public void nullRestaurantIdTest() throws InvalidFoodIdFault_Exception {
      FoodId foodId = new FoodId();
      foodId.setRestaurantId(null);
@@ -153,7 +153,7 @@ public class GetFoodIT extends BaseIT {
      foodId.setRestaurantId("A41_Restaurant1");
      foodId.setMenuId(null);
      Food food = hubClient.getFood(foodId);
-   }*/
+   }
 
    @After
    public void delete(){

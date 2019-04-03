@@ -13,8 +13,6 @@ import com.forkexec.hub.ws.FoodId;
 import com.forkexec.hub.ws.InvalidTextFault_Exception;
 import com.forkexec.hub.ws.InvalidInitFault_Exception;
 
-
-
 public class SearchDealIT extends BaseIT {
 
   @Before
