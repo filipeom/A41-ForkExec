@@ -87,5 +87,4 @@ public class AddPointsMethodIT extends BaseIT {
   public void notAnUser() throws InvalidPointsFault_Exception, InvalidEmailFault_Exception {
     client.addPoints("notauser@email.com", 100);
   }
-
 }
