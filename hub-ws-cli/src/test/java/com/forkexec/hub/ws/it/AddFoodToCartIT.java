@@ -20,7 +20,7 @@ import com.forkexec.hub.ws.InvalidFoodIdFault_Exception;
 
 public class AddFoodToCartIT extends BaseIT {
 
-  String userId = "Filipe";
+  String userId = "filipeom@hotmail.com";
   FoodId foodId = new FoodId();
   int quantity = 3;
 
