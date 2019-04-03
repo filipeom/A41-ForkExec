@@ -49,6 +49,18 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
+                <!-- Points -->
+		<dependency>
+		   <groupId>com.forkexec.A41</groupId>
+		   <artifactId>pts-ws-cli</artifactId>
+		   <version>1.0.0-SNAPSHOT</version>
+		 </dependency>
+		 <!-- Restaurants -->
+		<dependency>
+		   <groupId>com.forkexec.A41</groupId>
+		   <artifactId>rst-ws-cli</artifactId>
+		   <version>1.0.0-SNAPSHOT</version>
+		 </dependency>
 	</dependencies>
 	<build>
 		<resources>

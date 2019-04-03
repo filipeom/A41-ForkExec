@@ -1,17 +1,12 @@
-package com.forkexec.hub.ws.it;
+package com.forkexec.cc.ws.it;
 
 import java.io.IOException;
 import java.util.Properties;
 
-import java.util.List;
-import java.util.ArrayList;
-import com.forkexec.hub.ws.cli.HubClient;
-import com.forkexec.pts.ws.cli.PointsClient;
-import com.forkexec.rst.ws.cli.RestaurantClient;
+import pt.ulisboa.tecnico.sdis.ws.cli.CreditCardClient;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-
 
 /**
  * Base class for testing a Park Load properties from test.properties
@@ -21,8 +16,7 @@ public class BaseIT {
 	private static final String TEST_PROP_FILE = "/test.properties";
 	protected static Properties testProps;
 
-	protected static HubClient hubClient;
-	protected static PointsClient pointsClient;
+	protected static CreditCardClient client;
 
 	@BeforeClass
 	public static void oneTimeSetup() throws Exception {
@@ -44,17 +38,8 @@ public class BaseIT {
 		final String wsName = testProps.getProperty("ws.name");
 		final String wsURL = testProps.getProperty("ws.url");
 
-		if ("true".equalsIgnoreCase(uddiEnabled)) {
-			hubClient = new HubClient(uddiURL, wsName);
-		} else {
-			hubClient = new HubClient(wsURL);
-		}
-		pointsClient = new PointsClient(uddiURL, "A41_Points1");
-		pointsClient = new PointsClient(uddiURL, "A41_Points1");
-
-
-
-		hubClient.setVerbose("true".equalsIgnoreCase(verboseEnabled));
+		client = new CreditCardClient(wsURL);
+		client.setVerbose("true".equalsIgnoreCase(verboseEnabled));
 	}
 
 	@AfterClass

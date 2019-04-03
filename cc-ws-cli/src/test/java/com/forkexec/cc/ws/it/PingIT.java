@@ -1,4 +1,4 @@
-package com.forkexec.hub.ws.it;
+package com.forkexec.cc.ws.it;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -16,7 +16,7 @@ public class PingIT extends BaseIT {
 
 	@Test
 	public void pingEmptyTest() {
-		assertNotNull(hubClient.ctrlPing("test"));
+		assertNotNull(client.ping("test"));
 	}
 
 }
