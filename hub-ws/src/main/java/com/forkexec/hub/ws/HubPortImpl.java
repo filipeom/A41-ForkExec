@@ -198,7 +198,8 @@ public class HubPortImpl implements HubPortType {
       throwInvalidFoodId(e.getMessage());
     }
 
-    Hub.getInstance().addFoodItemToCart(userId, foodId, foodQuantity, price);
+    Hub.getInstance().addFoodItemToCart(userId, foodId.getRestaurantId(),
+        foodId.getMenuId(), foodQuantity, price);
     return;
   }
 
@@ -236,9 +237,10 @@ public class HubPortImpl implements HubPortType {
     FoodOrder order = new FoodOrder();
     try {
       for (CartItem item : cart) {
-        getRestaurantClient(item.getFoodId().getRestaurantId())
-          .orderMenu(newMenuId(item.getFoodId().getMenuId()), item.getFoodQuantity());
-        order.getItems().add(newFoodOrderItem(item.getFoodId(), item.getFoodQuantity()));
+        getRestaurantClient(item.getRestaurantId()).orderMenu(
+            newMenuId(item.getMenuId()), item.getFoodQuantity());
+        order.getItems().add(newFoodOrderItem(
+              newFoodId(item.getRestaurantId(), item.getMenuId()), item.getFoodQuantity()));
       }
     
     } catch (BadMenuIdFault_Exception | BadQuantityFault_Exception | InsufficientQuantityFault_Exception e) {
@@ -298,7 +300,7 @@ public class HubPortImpl implements HubPortType {
 
     return Hub.getInstance().getUserCart(userId).stream().map(item -> {
       FoodOrderItem foodItem = new FoodOrderItem();
-      foodItem.setFoodId(item.getFoodId());
+      foodItem.setFoodId(newFoodId(item.getRestaurantId(), item.getMenuId()));
       foodItem.setFoodQuantity(item.getFoodQuantity());
       return foodItem;
     }).collect(Collectors.toList());
@@ -423,6 +425,13 @@ public class HubPortImpl implements HubPortType {
   }
 
   // View helpers ----------------------------------------------------------
+
+  private FoodId newFoodId(String rid, String mid) {
+    FoodId foodId = new FoodId();
+    foodId.setRestaurantId(rid);
+    foodId.setMenuId(mid);
+    return foodId;
+  }
 
   private Food newFood(Menu menu, String rid) {
     FoodId foodId = new FoodId();

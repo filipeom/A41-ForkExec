@@ -13,7 +13,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.forkexec.hub.ws.Food;
-import com.forkexec.hub.ws.FoodId;
 
 /**
  * Hub
@@ -35,8 +34,14 @@ public class Hub {
    */
   private AtomicInteger foodOrderId = new AtomicInteger(0);
 
+  /**
+   * Pattern for identifiers.
+   */
   private static Pattern validString = Pattern.compile("^[a-zA-Z0-9_-]+$");
 
+  /**
+   * Pattern for emails.
+   */
   private static Pattern validEmail = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
   /**
@@ -127,15 +132,15 @@ public class Hub {
     return this.cart.get(uid);
   }
 
-  public synchronized void addFoodItemToCart(String uid, 
-      FoodId fid, int quantity, int price) {
+  public synchronized void addFoodItemToCart(String uid, String rid, 
+      String mid, int quantity, int price) {
     if (!validateEmail(uid))
       return;
 
     if (!existsUserCart(uid)) 
       this.cart.put(uid, new ArrayList<CartItem>());
 
-    getUserCart(uid).add(new CartItem(fid, quantity, price));
+    getUserCart(uid).add(new CartItem(rid, mid, quantity, price));
   }
 
   public synchronized void clearCart(String uid) {

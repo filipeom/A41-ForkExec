@@ -1,7 +1,5 @@
 package com.forkexec.hub.domain;
 
-import com.forkexec.hub.ws.FoodId;
-
 /**
  * Cart Item 
  *
@@ -9,22 +7,29 @@ import com.forkexec.hub.ws.FoodId;
  *
  */
 public class CartItem {
-  /** Food identifier */
-  private FoodId foodId;
+  /** Restaurant identifier */
+  private String restaurantId;
+  /** Menu identifier */
+  private String menuId;
   /** Quantity of item */
   private int quantity;
   /** The sub total price */
   private int price;
 
   /** Created a item with all arguments */
-  public CartItem(FoodId foodId, int quantity, int price) {
-    this.foodId = foodId;
+  public CartItem(String rid, String mid, int quantity, int price) {
+    this.restaurantId = rid;
+    this.menuId = mid;
     this.quantity = quantity;
     this.price = price;
   }
 
-  public FoodId getFoodId() {
-    return this.foodId;
+  public String getRestaurantId() {
+    return this.restaurantId;
+  }
+
+  public String getMenuId() {
+    return this.menuId;
   }
 
   public int getFoodQuantity() {
