@@ -11,7 +11,7 @@ import com.forkexec.pts.ws.InvalidPointsFault_Exception;
 import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 
 /**
- * Class that tests AdddPoints operation
+ * Class that tests AddPoints operation
  */
 public class AddPointsMethodIT extends BaseIT {
 
