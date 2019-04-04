@@ -92,7 +92,7 @@ public class CartContentsIT extends BaseIT {
   }
 
   @Test
-  public void getCart()
+  public void confirmCart()
           throws InvalidUserIdFault_Exception {
     List<FoodOrderItem> cart = hubClient.cartContents(userId);
 
@@ -103,10 +103,19 @@ public class CartContentsIT extends BaseIT {
     assertEquals("A41_Restaurant1", cart.get(0).getFoodId().getRestaurantId());
   }
 
+  @Test
+  public void addAnotherFoodToUserCart()
+          throws InvalidUserIdFault_Exception,InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception {
+
+    hubClient.addFoodToCart(userId, foodId, quantity);
+    List<FoodOrderItem> cart = hubClient.cartContents(userId);
+
+    assertFalse(cart.isEmpty());
+    assertEquals(2, cart.size());
+  }
+
   @After
   public void delete(){
     hubClient.ctrlClear();
   }
-
-
 }
