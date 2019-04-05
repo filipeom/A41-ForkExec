@@ -72,15 +72,13 @@ public class OrderMenuMethodIT extends BaseIT {
     assertEquals(QUANTITY, menuOrder.getMenuQuantity());
   }
 
-  //NAO ESTA A SER VERIFICADO NO SERVIDOR
-  /*@Test(expected = BadMenuIdFault_Exception.class)
+  @Test(expected = BadMenuIdFault_Exception.class)
   public void NullMenuID()
           throws BadMenuIdFault_Exception, BadQuantityFault_Exception,
           InsufficientQuantityFault_Exception {
 
     client.orderMenu(null, QUANTITY);
-  }*/
-
+  }
 
   @Test(expected = BadMenuIdFault_Exception.class)
   public void MenuIDWithNullID()
