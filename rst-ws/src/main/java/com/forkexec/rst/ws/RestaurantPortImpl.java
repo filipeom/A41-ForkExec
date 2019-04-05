@@ -84,6 +84,9 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	public MenuOrder orderMenu(MenuId arg0, int arg1)
 			throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
 
+    if ( arg0 == null)
+      throwBadMenuIdFault("Menu identifier cannot be null!");
+
     String id = arg0.getId();
     int quantity = arg1;
     Restaurant restaurant = Restaurant.getInstance();
@@ -143,6 +146,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	/** Set variables with specific values. */
 	@Override
 	public void ctrlInit(List<MenuInit> initialMenus) throws BadInitFault_Exception {
+
     for (MenuInit m : initialMenus) {
 
       if ( m == null )
