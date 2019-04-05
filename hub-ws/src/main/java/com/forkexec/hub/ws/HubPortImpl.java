@@ -193,7 +193,6 @@ public class HubPortImpl implements HubPortType {
     int price = 0;
     try {
       price = getFood(foodId).getPrice();
-      price = price * foodQuantity;
     } catch (InvalidFoodIdFault_Exception e) {
       throwInvalidFoodId(e.getMessage());
     }
@@ -223,7 +222,7 @@ public class HubPortImpl implements HubPortType {
       throwEmptyCart("Empty cart!");
 
     // Sum Cart Price - CartItem price contains sub total of menu (menuPrice * quantity)
-    int totalPrice = cart.stream().mapToInt(o -> o.getPrice()).sum();
+    int totalPrice = cart.stream().mapToInt(o -> o.getPrice() * o.getFoodQuantity()).sum();
     try {
       getPointsClient("A41_Points1").spendPoints(userId, totalPrice);
     } catch (InvalidEmailFault_Exception e) {
@@ -296,7 +295,7 @@ public class HubPortImpl implements HubPortType {
       throwInvalidUserId("Invalid email!");
 
     if (!Hub.getInstance().existsUserCart(userId))
-      throw new RuntimeException("User doesn't have any order");
+      throwInvalidUserId("User not found!");
 
     return Hub.getInstance().getUserCart(userId).stream().map(item -> {
       FoodOrderItem foodItem = new FoodOrderItem();

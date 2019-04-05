@@ -85,7 +85,7 @@ public class CartContentsIT extends BaseIT {
     hubClient.cartContents("jorge @gmail.com");
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test(expected = InvalidUserIdFault_Exception.class)
   public void notExistingUser()
           throws InvalidUserIdFault_Exception, RuntimeException {
     hubClient.cartContents("fakeUser@gmail.com");
