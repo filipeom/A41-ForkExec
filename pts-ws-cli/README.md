@@ -1,20 +1,5 @@
 # Points Web Service client
 
-## Authors
-
-Group A41
-
-### Lead developer 
-
-* **Jorge Martins** - *86456* - [Jorgecmartins](https://github.com/Jorgecmartins)
-
-### Contributors
-
-* **Filipe Marques** - *86411* - [filipeom](https://github.com/filipeom)
-* **Paulo Dias** - *86492* - [PauloACDias](https://github.com/PauloACDias)
-
-## About
-
 This is a Java Web Service client
 
 The client uses the wsimport tool (included with the JDK since version 6)
@@ -63,3 +48,5 @@ Check that the desired POM is selected and 'Finish'.
 
 
 ----
+
+Authors: Group CXX

@@ -1,7 +1,7 @@
 package com.forkexec.pts.ws.cli;
 
-/** 
- * Client application. 
+/**
+ * Client application.
  * 
  * Looks for Points using UDDI and arguments provided
  */

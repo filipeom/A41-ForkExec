@@ -79,7 +79,7 @@ public class PointsEndpointManager {
 			endpoint = null;
 			if (verbose) {
 				System.out.printf("Caught exception when starting: %s%n", e);
-				e.printStackTrace();
+				throw new RuntimeException(e.getMessage());
 			}
 			throw e;
 		}

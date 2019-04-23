@@ -3,18 +3,22 @@ package com.forkexec.pts.ws.it;
 import java.io.IOException;
 import java.util.Properties;
 
-import com.forkexec.pts.ws.cli.PointsClient;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import com.forkexec.pts.ws.cli.PointsClient;
+
 /**
- * Base class for testing a Park Load properties from test.properties
+ * Base class for testing the remote service. Load properties from the
+ * test.properties resource.
  */
 public class BaseIT {
 
+	public static final String UNKNOWN_USER = "Unknown";
+	protected static final int USER_POINTS = 100;
 	private static final String TEST_PROP_FILE = "/test.properties";
 	protected static Properties testProps;
+	protected static final String VALID_USER = "sd.test@tecnico.ulisboa";
 
 	protected static PointsClient client;
 
@@ -44,11 +48,13 @@ public class BaseIT {
 			client = new PointsClient(wsURL);
 		}
 		client.setVerbose("true".equalsIgnoreCase(verboseEnabled));
-    client.ctrlClear();
 	}
 
 	@AfterClass
 	public static void cleanup() {
-    client.ctrlClear();
+	}
+
+	protected static void pointsTestClear() {
+		client.ctrlClear();
 	}
 }

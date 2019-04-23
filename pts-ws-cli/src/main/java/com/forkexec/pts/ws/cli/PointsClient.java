@@ -6,7 +6,13 @@ import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
 
-import com.forkexec.pts.ws.*;
+import com.forkexec.pts.ws.BadInitFault_Exception;
+import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
+import com.forkexec.pts.ws.InvalidEmailFault_Exception;
+import com.forkexec.pts.ws.InvalidPointsFault_Exception;
+import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
+import com.forkexec.pts.ws.PointsPortType;
+import com.forkexec.pts.ws.PointsService;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 
@@ -106,12 +112,12 @@ public class PointsClient implements PointsPortType {
 	public void activateUser(String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
 		port.activateUser(userEmail);
 	}
-	
+
 	@Override
 	public int pointsBalance(String userEmail) throws InvalidEmailFault_Exception {
 		return port.pointsBalance(userEmail);
 	}
-	
+
 	@Override
 	public int addPoints(String userEmail, int pointsToAdd)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
@@ -123,9 +129,7 @@ public class PointsClient implements PointsPortType {
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
 		return port.spendPoints(userEmail, pointsToSpend);
 	}
-	
-	
-	
+
 	// control operations -----------------------------------------------------
 
 	@Override

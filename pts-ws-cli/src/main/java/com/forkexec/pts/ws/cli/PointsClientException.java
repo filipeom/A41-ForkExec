@@ -1,8 +1,8 @@
 package com.forkexec.pts.ws.cli;
 
-/** 
+/**
  * 
- * Exception to be thrown when something is wrong with the client. 
+ * Exception to be thrown when something is wrong with the client.
  * 
  */
 public class PointsClientException extends Exception {

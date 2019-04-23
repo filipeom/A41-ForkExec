@@ -1,6 +1,5 @@
 package com.forkexec.pts.ws;
 
-
 /**
  * The application is where the service starts running. The program arguments
  * are processed here. Other configurations can also be done here.

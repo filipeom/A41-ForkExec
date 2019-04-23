@@ -1,20 +1,5 @@
 # Points Web Service
 
-## Authors
-
-Group A41
-
-### Lead developer 
-
-* **Jorge Martins** - *86456* - [Jorgecmartins](https://github.com/Jorgecmartins)
-
-### Contributors
-
-* **Filipe Marques** - *86411* - [filipeom](https://github.com/filipeom)
-* **Paulo Dias** - *86492* - [PauloACDias](https://github.com/PauloACDias)
-
-## About
-
 This is a Java Web Service defined by the WSDL file that generates Java code
 (contract-first approach, also called top-down approach).
 
@@ -55,3 +40,5 @@ Check that the desired POM is selected and 'Finish'.
 
 
 ----
+
+Authors: Group CXX
