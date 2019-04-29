@@ -15,6 +15,7 @@
         <module>uddi-naming</module>
         <module>pts-ws</module>
         <module>pts-ws-cli</module>
+        <module>pts-frontend</module>
         <module>rst-ws</module>
         <module>rst-ws-cli</module>
         <module>hub-ws</module>

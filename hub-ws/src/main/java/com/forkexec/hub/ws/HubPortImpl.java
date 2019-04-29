@@ -13,7 +13,9 @@ import javax.jws.WebService;
 import com.forkexec.hub.domain.Hub;
 import com.forkexec.hub.domain.CartItem;
 import com.forkexec.pts.ws.cli.PointsClient;
+import com.forkexec.pts.ws.frontend.PointsFrontEnd;
 import com.forkexec.pts.ws.cli.PointsClientException;
+import com.forkexec.pts.ws.frontend.PointsFrontEndException;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
 import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
@@ -76,9 +78,9 @@ public class HubPortImpl implements HubPortType {
       return new RestaurantClient(endpointManager.getUddiNaming().lookup(rstName));
   }
 
-  public PointsClient getPointsClient(String ptsName) 
-      throws UDDINamingException, PointsClientException {
-      return new PointsClient(endpointManager.getUddiNaming().lookup(ptsName));
+  public PointsFrontEnd getPointsClient(String ptsName) 
+      throws UDDINamingException, PointsFrontEndException {
+      return new PointsFrontEnd(endpointManager.getUddiNaming().getUDDIUrl(), ptsName);
   }
 
   // Main operations -------------------------------------------------------

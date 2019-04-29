@@ -93,6 +93,19 @@ public class PointsPortImpl implements PointsPortType {
 	}
 
 	// Control operations ----------------------------------------------------
+
+  @Override
+  public Value read(String userEmail) {
+    return null;
+  }
+
+  @Override
+  public String write(String userEmail, int points) {
+    return "ACK";
+  }
+
+	// Control operations ----------------------------------------------------
+
 	/** Diagnostic operation to check if service is running. */
 	@Override
 	public String ctrlPing(String inputMessage) {

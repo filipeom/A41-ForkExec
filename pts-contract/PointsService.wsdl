@@ -31,6 +31,10 @@
       <xs:element name="pointsBalanceResponse" type="tns:pointsBalanceResponse" />
       <xs:element name="spendPoints" type="tns:spendPoints" />
       <xs:element name="spendPointsResponse" type="tns:spendPointsResponse" />
+      <xs:element name="read" type="tns:read" />
+      <xs:element name="readResponse" type="tns:readResponse" />
+      <xs:element name="write" type="tns:write" />
+      <xs:element name="writeResponse" type="tns:writeResponse" />
       <xs:complexType name="ctrlClear">
         <xs:sequence />
       </xs:complexType>
@@ -120,10 +124,55 @@
           <xs:element minOccurs="0" name="message" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="tag">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="seq" type="xs:int" />
+          <xs:element minOccurs="0" name="cid" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="value">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="val" type="xs:int" />
+          <xs:element minOccurs="0" name="tag" type="tns:tag" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="read">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="userEmail" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="readResponse">
+        <xs:sequence>
+          <xs:element name="return" type="tns:value" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="write">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="userEmail" type="xs:string" />
+          <xs:element name="points" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="writeResponse">
+        <xs:sequence>
+          <xs:element name="return" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
     </xs:schema>
   </types>
 
   <!--  Messages use elements defined in the schema. -->
+  <message name="read">
+    <part element="tns:read" name="parameters" />
+  </message>
+  <message name="readResponse">
+    <part element="tns:readResponse" name="parameters" />
+  </message>
+  <message name="write">
+    <part element="tns:write" name="parameters" />
+  </message>
+  <message name="writeResponse">
+    <part element="tns:writeResponse" name="parameters" />
+  </message>
   <message name="ctrlPing">
     <part element="tns:ctrlPing" name="parameters" />
   </message>
@@ -185,6 +234,14 @@
   <!--  Port type (interface). -->
   <!--  Each operation has input, output and fault messages. -->
   <portType name="PointsPortType">
+    <operation name="read">
+      <input message="tns:read" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/readRequest" />
+      <output message="tns:readResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/readResponse" />
+    </operation>
+    <operation name="write">
+      <input message="tns:write" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/writeRequest" />
+      <output message="tns:writeResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/writeResponse" />
+    </operation>
     <operation name="ctrlPing">
       <input message="tns:ctrlPing" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/ctrlPingRequest" />
       <output message="tns:ctrlPingResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/ctrlPingResponse" />
@@ -227,6 +284,24 @@
   <!--  Binding defines the actual technologies to use. -->
   <binding name="PointsPortBinding" type="tns:PointsPortType">
     <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <operation name="read">
+      <soap:operation soapAction="" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+    <operation name="write">
+      <soap:operation soapAction="" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
     <operation name="ctrlPing">
       <soap:operation soapAction="" />
       <input>
