@@ -3,10 +3,13 @@ package com.forkexec.pts.ws;
 import javax.jws.WebService;
 
 import com.forkexec.pts.domain.Points;
+import com.forkexec.pts.domain.*;
 import com.forkexec.pts.domain.exception.EmailAlreadyExistsFaultException;
 import com.forkexec.pts.domain.exception.InvalidEmailFaultException;
 import com.forkexec.pts.domain.exception.InvalidPointsFaultException;
 import com.forkexec.pts.domain.exception.NotEnoughBalanceFaultException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -26,6 +29,9 @@ public class PointsPortImpl implements PointsPortType {
 	 * lifecycle.
 	 */
 	private final PointsEndpointManager endpointManager;
+
+
+	private Map<String, Tag> tags = new ConcurrentHashMap<>();
 
 	/** Constructor receives a reference to the endpoint manager. */
 	public PointsPortImpl(final PointsEndpointManager endpointManager) {
@@ -100,8 +106,21 @@ public class PointsPortImpl implements PointsPortType {
   }
 
   @Override
-  public String write(String userEmail, int points) {
-    return "ACK";
+  public String write(String userEmail, int points, Tag newtag) {
+		Tag tag = tags.get(userEmail);
+
+		if (tag != null) {
+
+			if (newtag.getSeq() > tag.getSeq()) {
+				final Points instance = Points.getInstance();
+
+				tags.replace(userEmail, newtag);
+				instance.write(userEmail, points);
+
+				return "ACK";
+			}
+		}
+    return "NACK";
   }
 
 	// Control operations ----------------------------------------------------

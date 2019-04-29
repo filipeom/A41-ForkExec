@@ -136,6 +136,14 @@ public class Points {
 		points.addAndGet(pointsToAdd);
 	}
 
+	public void write(final String accountId, final int balance) {
+		//TODO for now we ignore if user does not exists
+		// wait for read implementation
+		final AtomicInteger points = accounts.get(accountId);
+		if (points != null)
+			points.getAndSet(balance);
+	}
+
 	/** Remove points from account. */
 	public void removePoints(final String accountId, final int pointsToSpend)
 			throws InvalidEmailFaultException, NotEnoughBalanceFaultException, InvalidPointsFaultException {
