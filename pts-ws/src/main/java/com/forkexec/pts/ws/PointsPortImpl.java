@@ -16,11 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * below "map" the Java class to the WSDL definitions.
  */
 @WebService(
-		endpointInterface = "com.forkexec.pts.ws.PointsPortType", 
-		wsdlLocation = "PointsService.wsdl", 
-		name = "PointsWebService", 
-		portName = "PointsPort", 
-		targetNamespace = "http://ws.pts.forkexec.com/", 
+		endpointInterface = "com.forkexec.pts.ws.PointsPortType",
+		wsdlLocation = "PointsService.wsdl",
+		name = "PointsWebService",
+		portName = "PointsPort",
+		targetNamespace = "http://ws.pts.forkexec.com/",
 		serviceName = "PointsService")
 public class PointsPortImpl implements PointsPortType {
 
@@ -101,8 +101,25 @@ public class PointsPortImpl implements PointsPortType {
 	// Control operations ----------------------------------------------------
 
   @Override
-  public Value read(String userEmail) {
-    return null;
+  public Value read(String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+		final Points points = Points.getInstance();
+
+		try {
+
+			if( !points.checkUser(userEmail) )
+				points.initAccount(userEmail);
+
+	    Tag tag = tags.get(userEmail);
+			int value = points.getAccountPoints(userEmail);
+			return createValue(tag, value);
+
+		} catch (InvalidEmailFaultException e) {
+			throwInvalidEmailFault(e.getMessage());
+		} catch (EmailAlreadyExistsFaultException e) {
+			throwEmailAlreadyExistsFault(e.getMessage());
+		}
+
+		return null;
   }
 
   @Override
@@ -122,6 +139,13 @@ public class PointsPortImpl implements PointsPortType {
 		}
     return "NACK";
   }
+
+	public Value createValue(Tag tag, int val) {
+		Value value = new Value();
+		value.setVal(val);
+		value.setTag(tag);
+		return value;
+	}
 
 	// Control operations ----------------------------------------------------
 

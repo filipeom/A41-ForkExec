@@ -152,8 +152,8 @@ public class Points {
 		if (pointsToSpend <= 0) {
 			throw new InvalidPointsFaultException("Value cannot be negative or zero!");
 		}
-		
-		// use atomic compare and set to make sure that 
+
+		// use atomic compare and set to make sure that
 		// between the read and the update the value has not changed.
 		// if it changed, try again
 		int balance, updatedBalance;
@@ -163,9 +163,13 @@ public class Points {
 			if (updatedBalance < 0)
 				throw new NotEnoughBalanceFaultException();
 		} while(!points.compareAndSet(/* expected */ balance, updatedBalance));
-				// compareAndSet atomically sets the value to the given updated value 
+				// compareAndSet atomically sets the value to the given updated value
 				// if the current value == the expected value.
 				// returns true if successful, so we negate to exit loop
+	}
+
+	public boolean checkUser(final String accountId) {
+		return accounts.containsKey(accountId);
 	}
 
 }

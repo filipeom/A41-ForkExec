@@ -238,6 +238,8 @@
     <operation name="read">
       <input message="tns:read" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/readRequest" />
       <output message="tns:readResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/readResponse" />
+      <fault message="tns:InvalidEmailFault" name="InvalidEmailFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/read/Fault/InvalidEmailFault" />
+      <fault message="tns:EmailAlreadyExistsFault" name="EmailAlreadyExistsFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/read/Fault/EmailAlreadyExistsFault" />
     </operation>
     <operation name="write">
       <input message="tns:write" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/writeRequest" />
@@ -293,6 +295,12 @@
       <output>
         <soap:body use="literal" />
       </output>
+      <fault name="EmailAlreadyExistsFault">
+        <soap:fault name="EmailAlreadyExistsFault" use="literal" />
+      </fault>
+      <fault name="InvalidEmailFault">
+        <soap:fault name="InvalidEmailFault" use="literal" />
+      </fault>
     </operation>
     <operation name="write">
       <soap:operation soapAction="" />
