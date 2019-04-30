@@ -170,9 +170,17 @@ public class Points {
     }
   }
 
-	public void write(final String accountId, final int balance) {
+	public void write(final String accountId, final int balance)
+		throws NotEnoughBalanceFaultException, InvalidEmailFaultException, InvalidPointsFaultException {
 		//TODO for now we ignore if user does not exists
 		// wait for read implementation
+
+		checkValidEmail(accountId);
+		if (balance < 0)
+			throw new NotEnoughBalanceFaultException("Not enough points!");
+		if (balance <= 0)
+			throw new InvalidPointsFaultException("Value cannot be negative or zero!");
+
 		final AtomicInteger points = accounts.get(accountId);
 		if (points != null)
 			points.getAndSet(balance);

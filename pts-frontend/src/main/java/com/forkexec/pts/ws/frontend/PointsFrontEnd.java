@@ -41,6 +41,8 @@ public class PointsFrontEnd {
 
 	private final String POINTS = "A41_Points";
 
+	private final String SUCCESS = "ACK";
+
 	/** output option **/
 	private boolean verbose = false;
 
@@ -133,12 +135,54 @@ public class PointsFrontEnd {
 	public int spendPoints(String userEmail, int pointsToSpend)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
     PointsClient cli = null;
+		Value maxValue = null;
+		int currentSeq = 0;
+		int numSuccess = 0;
+		int points = 0;
+
     try {
-      //cli = new PointsClient(uddiURL, wsURL);
-    } catch (Exception e) {
-      // FIXME - IGNORE
-    }
-		return cli.spendPoints(userEmail, pointsToSpend);
+
+			for(int i = 0; i < nReplicas; i++) {
+				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
+				Value value = cli.read(userEmail);
+				Tag tag = value.getTag();
+				if(  tag.getSeq() > currentSeq ) {
+					maxValue = value;
+					currentSeq = tag.getSeq();
+				}
+			}
+
+			Tag newTag = createTag(maxValue.getTag());
+			points = maxValue.getVal() - pointsToSpend;
+
+			for(int i = 0; i < nReplicas; i++) {
+				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
+				if ( cli.write(userEmail, points, newTag).equals(SUCCESS) )
+					numSuccess ++;
+			}
+
+    } catch (PointsClientException | PointsFrontEndException e) {
+			throw new RuntimeException("Failed to lookup Points Service.");
+    } catch (InvalidPointsFault_Exception e) {
+			throw new InvalidPointsFault_Exception( e.getMessage(), e.getFaultInfo());
+		} catch (InvalidEmailFault_Exception e) {
+			throw new InvalidEmailFault_Exception( e.getMessage(), e.getFaultInfo());
+		} catch (NotEnoughBalanceFault_Exception e) {
+			throw new NotEnoughBalanceFault_Exception ( e.getMessage(), e.getFaultInfo());
+		}
+
+		if( numSuccess == nReplicas)
+			return points;
+
+		return -1;
+
+	}
+
+	public Tag createTag(Tag t) {
+		Tag tag = new Tag();
+		tag.setSeq(t.getSeq() + 1);
+		tag.setCid(0);
+		return tag;
 	}
 
 	// control operations -----------------------------------------------------
