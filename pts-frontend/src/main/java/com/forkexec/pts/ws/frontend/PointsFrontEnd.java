@@ -187,7 +187,7 @@ public class PointsFrontEnd {
 
 	// control operations -----------------------------------------------------
 
-	public String ctrlPing(String inputMessage) throws PointsClientException, PointsFrontEndException {
+	public String ctrlPing(String inputMessage) {
     PointsClient cli = null;
 		StringBuilder builder = new StringBuilder();
 
