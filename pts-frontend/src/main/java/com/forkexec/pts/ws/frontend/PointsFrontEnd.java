@@ -187,14 +187,20 @@ public class PointsFrontEnd {
 
 	// control operations -----------------------------------------------------
 
-	public String ctrlPing(String inputMessage) {
+	public String ctrlPing(String inputMessage) throws PointsClientException, PointsFrontEndException {
     PointsClient cli = null;
+		StringBuilder builder = new StringBuilder();
+
     try {
-      //cli = new PointsClient(uddiURL, wsURL);
-    } catch (Exception e) {
-      // FIXME - IGNORE
+			for(int i = 0; i < nReplicas; i++) {
+				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
+				if ( cli.ctrlPing(inputMessage) != null )
+					builder.append( cli.ctrlPing(inputMessage) );
+			}
+    } catch (PointsClientException | PointsFrontEndException e) {
+      	throw new RuntimeException("Failed to lookup Points Service.");
     }
-		return cli.ctrlPing(inputMessage);
+		return builder.toString();
 	}
 
 	public void ctrlClear() {
