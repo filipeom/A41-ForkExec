@@ -13,6 +13,9 @@ import com.forkexec.pts.ws.InvalidPointsFault_Exception;
 import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 import com.forkexec.pts.ws.PointsPortType;
 import com.forkexec.pts.ws.PointsService;
+import com.forkexec.pts.ws.Tag;
+import com.forkexec.pts.ws.Value;
+
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 
@@ -124,6 +127,14 @@ public class PointsClient {
 	public int spendPoints(String userEmail, int pointsToSpend)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
 		return port.spendPoints(userEmail, pointsToSpend);
+	}
+
+	public Value read(String userEmail) throws InvalidEmailFault_Exception {
+		return port.read(userEmail);
+	}
+
+	public String write(String userEmail, int points, Tag t) throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+		return port.write(userEmail, points, t);
 	}
 
 	// control operations -----------------------------------------------------
