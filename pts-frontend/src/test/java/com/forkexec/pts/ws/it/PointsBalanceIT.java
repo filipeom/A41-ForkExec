@@ -7,8 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.forkexec.pts.ws.BadInitFault_Exception;
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
+
+import com.forkexec.pts.ws.frontend.EmailAlreadyExistsFault_Exception;
 
 public class PointsBalanceIT extends BaseIT {
 	@Before

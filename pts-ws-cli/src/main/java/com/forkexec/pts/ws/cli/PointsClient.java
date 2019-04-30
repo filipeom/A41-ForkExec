@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.xml.ws.BindingProvider;
 
 import com.forkexec.pts.ws.BadInitFault_Exception;
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
 import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
@@ -110,24 +109,6 @@ public class PointsClient {
 	}
 
 	// remote invocation methods ----------------------------------------------
-
-	public void activateUser(String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
-		port.activateUser(userEmail);
-	}
-
-	public int pointsBalance(String userEmail) throws InvalidEmailFault_Exception {
-		return port.pointsBalance(userEmail);
-	}
-
-	public int addPoints(String userEmail, int pointsToAdd)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-		return port.addPoints(userEmail, pointsToAdd);
-	}
-
-	public int spendPoints(String userEmail, int pointsToSpend)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
-		return port.spendPoints(userEmail, pointsToSpend);
-	}
 
 	public Value read(String userEmail) throws InvalidEmailFault_Exception {
 		return port.read(userEmail);

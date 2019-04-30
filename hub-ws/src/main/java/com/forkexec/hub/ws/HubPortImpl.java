@@ -18,7 +18,7 @@ import com.forkexec.pts.ws.cli.PointsClientException;
 import com.forkexec.pts.ws.frontend.PointsFrontEndException;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
+import com.forkexec.pts.ws.frontend.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 
 import com.forkexec.rst.ws.Menu;

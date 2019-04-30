@@ -6,7 +6,7 @@ import java.util.Properties;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import com.forkexec.pts.ws.cli.PointsClient;
+import com.forkexec.pts.ws.frontend.PointsFrontEnd;
 
 /**
  * Base class for testing the remote service. Load properties from the
@@ -20,7 +20,7 @@ public class BaseIT {
 	protected static Properties testProps;
 	protected static final String VALID_USER = "sd.test@tecnico.ulisboa";
 
-	protected static PointsClient client;
+	protected static PointsFrontEnd client;
 
 	@BeforeClass
 	public static void oneTimeSetup() throws Exception {
@@ -43,10 +43,8 @@ public class BaseIT {
 		final String wsURL = testProps.getProperty("ws.url");
 
 		if ("true".equalsIgnoreCase(uddiEnabled)) {
-			client = new PointsClient(uddiURL, wsName);
-		} else {
-			client = new PointsClient(wsURL);
-		}
+			client = new PointsFrontEnd(uddiURL, 3);
+		} 
 		client.setVerbose("true".equalsIgnoreCase(verboseEnabled));
 	}
 

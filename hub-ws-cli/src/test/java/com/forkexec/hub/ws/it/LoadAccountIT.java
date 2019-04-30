@@ -8,8 +8,9 @@ import org.junit.Test;
 import com.forkexec.hub.ws.InvalidUserIdFault_Exception;
 import com.forkexec.hub.ws.InvalidCreditCardFault_Exception;
 import com.forkexec.hub.ws.InvalidMoneyFault_Exception;
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
+
+import com.forkexec.pts.ws.frontend.EmailAlreadyExistsFault_Exception;
 
 /**
  * Class that tests LoadAccountIT operation

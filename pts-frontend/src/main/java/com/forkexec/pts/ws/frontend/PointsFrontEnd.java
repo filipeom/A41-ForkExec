@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.xml.ws.BindingProvider;
 
 import com.forkexec.pts.ws.BadInitFault_Exception;
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
 import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
@@ -94,7 +93,7 @@ public class PointsFrontEnd {
     } catch (Exception e) {
       // FIXME - IGNORE
     }
-    cli.activateUser(userEmail);
+    //cli.activateUser(userEmail);
 	}
 
 	public int pointsBalance(String userEmail) throws InvalidEmailFault_Exception {
@@ -115,9 +114,10 @@ public class PointsFrontEnd {
 
     } catch (PointsClientException | PointsFrontEndException e) {
 			throw new RuntimeException("Failed to lookup Points Service.");
-    } catch (InvalidEmailFault_Exception e) {
+    } catch (InvalidEmailFault_Exception e) { 
 			throw new InvalidEmailFault_Exception( e.getMessage(), e.getFaultInfo());
-		}
+    } 
+
 		return maxValue.getVal();
 	}
 
@@ -164,7 +164,6 @@ public class PointsFrontEnd {
 			return points;
 
 		return -1;
-
 	}
 
 	public int spendPoints(String userEmail, int pointsToSpend)
@@ -204,7 +203,7 @@ public class PointsFrontEnd {
 			throw new InvalidEmailFault_Exception( e.getMessage(), e.getFaultInfo());
 		} catch (NotEnoughBalanceFault_Exception e) {
 			throw new NotEnoughBalanceFault_Exception ( e.getMessage(), e.getFaultInfo());
-		}
+    } 
 
 		if( numSuccess == nReplicas)
 			return points;

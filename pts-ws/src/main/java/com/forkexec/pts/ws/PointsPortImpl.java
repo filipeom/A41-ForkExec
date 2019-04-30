@@ -4,10 +4,10 @@ import javax.jws.WebService;
 
 import com.forkexec.pts.domain.Points;
 import com.forkexec.pts.domain.*;
-import com.forkexec.pts.domain.exception.EmailAlreadyExistsFaultException;
 import com.forkexec.pts.domain.exception.InvalidEmailFaultException;
 import com.forkexec.pts.domain.exception.InvalidPointsFaultException;
 import com.forkexec.pts.domain.exception.NotEnoughBalanceFaultException;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -42,66 +42,6 @@ public class PointsPortImpl implements PointsPortType {
   }
 
   // Main operations -------------------------------------------------------
-
-  @Override
-  public void activateUser(final String userEmail)
-    throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
-    try {
-      final Points points = Points.getInstance();
-      points.initAccount(userEmail);
-    } catch (EmailAlreadyExistsFaultException e) {
-      String message = e.getMessage();
-      throwEmailAlreadyExistsFault(message);
-    } catch (InvalidEmailFaultException e) {
-      String message = e.getMessage();
-      throwInvalidEmailFault(message);
-    }
-  }
-
-  @Override
-  public int pointsBalance(final String userEmail) throws InvalidEmailFault_Exception {
-    try {
-      final Points points = Points.getInstance();
-      return points.getAccountPoints(userEmail);
-    } catch (InvalidEmailFaultException e) {
-      throwInvalidEmailFault(e.getMessage());
-      return -1;
-    }
-  }
-
-  @Override
-  public int addPoints(final String userEmail, final int pointsToAdd)
-    throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-    try {
-      final Points points = Points.getInstance();
-      points.addPoints(userEmail, pointsToAdd);
-      return points.getAccountPoints(userEmail);
-    } catch (InvalidEmailFaultException e) {
-      throwInvalidEmailFault(e.getMessage());
-    } catch (InvalidPointsFaultException e) {
-      throwInvalidPointsFault(e.getMessage());
-    }
-    return -1;
-  }
-
-  @Override
-  public int spendPoints(final String userEmail, final int pointsToSpend)
-    throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
-    try {
-      final Points points = Points.getInstance();
-      points.removePoints(userEmail, pointsToSpend);
-      return points.getAccountPoints(userEmail);
-    } catch (InvalidEmailFaultException e) {
-      throwInvalidEmailFault(e.getMessage());
-    } catch (InvalidPointsFaultException e) {
-      throwInvalidPointsFault(e.getMessage());
-    } catch (NotEnoughBalanceFaultException e) {
-      throwNotEnoughBalanceFault(e.getMessage());
-    }
-    return -1;
-  }
-
-  // read write operations ------------------------------------------------
 
   @Override
   public Value read(String userEmail) throws InvalidEmailFault_Exception {
@@ -187,13 +127,6 @@ public class PointsPortImpl implements PointsPortType {
     final BadInitFault faultInfo = new BadInitFault();
     faultInfo.message = message;
     throw new BadInitFault_Exception(message, faultInfo);
-  }
-
-  /** Helper to throw a new EmailAlreadyExistsFault exception. */
-  private void throwEmailAlreadyExistsFault(final String message) throws EmailAlreadyExistsFault_Exception {
-    final EmailAlreadyExistsFault faultInfo = new EmailAlreadyExistsFault();
-    faultInfo.message = message;
-    throw new EmailAlreadyExistsFault_Exception(message, faultInfo);
   }
 
   /** Helper to throw a new InvalidEmailFault exception. */

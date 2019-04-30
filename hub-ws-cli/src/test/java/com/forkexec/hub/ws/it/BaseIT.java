@@ -6,7 +6,7 @@ import java.util.Properties;
 import java.util.List;
 import java.util.ArrayList;
 import com.forkexec.hub.ws.cli.HubClient;
-import com.forkexec.pts.ws.cli.PointsClient;
+import com.forkexec.pts.ws.frontend.PointsFrontEnd;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -21,7 +21,7 @@ public class BaseIT {
 	protected static Properties testProps;
 
 	protected static HubClient hubClient;
-	protected static PointsClient pointsClient;
+	protected static PointsFrontEnd pointsClient;
 
 	@BeforeClass
 	public static void oneTimeSetup() throws Exception {
@@ -48,7 +48,7 @@ public class BaseIT {
 		} else {
 			hubClient = new HubClient(wsURL);
 		}
-		pointsClient = new PointsClient(uddiURL, "A41_Points1");
+		pointsClient = new PointsFrontEnd(uddiURL, 3);
 
 		hubClient.setVerbose("true".equalsIgnoreCase(verboseEnabled));
 	}
