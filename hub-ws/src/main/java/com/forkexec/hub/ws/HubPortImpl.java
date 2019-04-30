@@ -58,6 +58,8 @@ public class HubPortImpl implements HubPortType {
    */
   private HubEndpointManager endpointManager;
 
+  private final int REPLICAS = 3;
+
   /** Constructor receives a reference to the endpoint manager. */
   public HubPortImpl(HubEndpointManager endpointManager) {
     this.endpointManager = endpointManager;
@@ -78,9 +80,9 @@ public class HubPortImpl implements HubPortType {
       return new RestaurantClient(endpointManager.getUddiNaming().lookup(rstName));
   }
 
-  public PointsFrontEnd getPointsClient(String ptsName) 
+  public PointsFrontEnd getPointsClient()
       throws UDDINamingException, PointsFrontEndException {
-      return new PointsFrontEnd(endpointManager.getUddiNaming().getUDDIUrl(), ptsName);
+      return new PointsFrontEnd(endpointManager.getUddiNaming().getUDDIUrl(), this.REPLICAS);
   }
 
   // Main operations -------------------------------------------------------
@@ -91,7 +93,7 @@ public class HubPortImpl implements HubPortType {
       throwInvalidUserId("Invalid email!");
 
     try {
-      getPointsClient("A41_Points1").activateUser(userId);
+      getPointsClient().activateUser(userId);
 
     } catch(InvalidEmailFault_Exception e) {
       throwInvalidUserId(e.getMessage());
@@ -125,7 +127,7 @@ public class HubPortImpl implements HubPortType {
     }
 
     try {
-      getPointsClient("A41_Points1").addPoints(userId, convertEURpoints(moneyToAdd));
+      getPointsClient().addPoints(userId, convertEURpoints(moneyToAdd));
 
     } catch(InvalidEmailFault_Exception e) {
       throwInvalidUserId(e.getMessage());
@@ -226,7 +228,7 @@ public class HubPortImpl implements HubPortType {
     // Sum Cart Price - CartItem price contains sub total of menu (menuPrice * quantity)
     int totalPrice = cart.stream().mapToInt(o -> o.getPrice() * o.getFoodQuantity()).sum();
     try {
-      getPointsClient("A41_Points1").spendPoints(userId, totalPrice);
+      getPointsClient().spendPoints(userId, totalPrice);
     } catch (InvalidEmailFault_Exception e) {
       throwInvalidUserId(e.getMessage());
     } catch (InvalidPointsFault_Exception | NotEnoughBalanceFault_Exception e) {
@@ -259,7 +261,7 @@ public class HubPortImpl implements HubPortType {
       throwInvalidUserId("Invalid email!");
 
     try {
-      return getPointsClient("A41_Points1").pointsBalance(userId);
+      return getPointsClient().pointsBalance(userId);
 
     } catch(InvalidEmailFault_Exception e) {
       throwInvalidUserId(e.getMessage());

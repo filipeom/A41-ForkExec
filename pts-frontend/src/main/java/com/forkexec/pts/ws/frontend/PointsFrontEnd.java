@@ -34,15 +34,9 @@ public class PointsFrontEnd {
 	/** UDDI server URL */
 	private String uddiURL = null;
 
-	/** WS name */
-	private String wsName = null;
+	private int nReplicas = 0;
 
-	/** WS end point address */
-	private String wsURL = null; // default value is defined inside WSDL
-
-	public String getWsURL() {
-		return wsURL;
-	}
+	private final String POINTS = "A41_Points";
 
 	/** output option **/
 	private boolean verbose = false;
@@ -56,13 +50,14 @@ public class PointsFrontEnd {
 	}
 
 	/** constructor with provided UDDI location and name */
-	public PointsFrontEnd(String uddiURL, String wsName) throws PointsFrontEndException {
+	public PointsFrontEnd(String uddiURL, int N) throws PointsFrontEndException {
 		this.uddiURL = uddiURL;
-		this.wsName = wsName;
+		this.nReplicas = N;
 	}
 
 	/** UDDI lookup */
-	private void uddiLookup() throws PointsFrontEndException {
+	private String uddiLookup(String wsName) throws PointsFrontEndException {
+		String wsURL;
 		try {
 			if (verbose)
 				System.out.printf("Contacting UDDI at %s%n", uddiURL);
@@ -81,22 +76,8 @@ public class PointsFrontEnd {
 			String msg = String.format("Service with name %s not found on UDDI at %s", wsName, uddiURL);
 			throw new PointsFrontEndException(msg);
 		}
-	}
 
-	/** Stub creation and configuration */
-	private void createStub() {
-		if (verbose)
-			System.out.println("Creating stub ...");
-		service = new PointsService();
-		port = service.getPointsPort();
-
-		if (wsURL != null) {
-			if (verbose)
-				System.out.println("Setting endpoint address ...");
-			BindingProvider bindingProvider = (BindingProvider) port;
-			Map<String, Object> requestContext = bindingProvider.getRequestContext();
-			requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
-		}
+		return wsURL;
 	}
 
 	// remote invocation methods ----------------------------------------------
@@ -104,7 +85,7 @@ public class PointsFrontEnd {
 	public void activateUser(String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
     PointsClient cli = null;
     try {
-      cli = new PointsClient(uddiURL, wsName);
+      //cli = new PointsClient(uddiURL, wsURL);
     } catch (Exception e) {
       // FIXME - IGNORE
     }
@@ -114,7 +95,7 @@ public class PointsFrontEnd {
 	public int pointsBalance(String userEmail) throws InvalidEmailFault_Exception {
     PointsClient cli = null;
     try {
-      cli = new PointsClient(uddiURL, wsName);
+      //cli = new PointsClient(uddiURL, wsURL);
     } catch (Exception e) {
       // FIXME - IGNORE
     }
@@ -125,7 +106,7 @@ public class PointsFrontEnd {
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
     PointsClient cli = null;
     try {
-      cli = new PointsClient(uddiURL, wsName);
+      //cli = new PointsClient(uddiURL, wsURL);
     } catch (Exception e) {
       // FIXME - IGNORE
     }
@@ -136,7 +117,7 @@ public class PointsFrontEnd {
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
     PointsClient cli = null;
     try {
-      cli = new PointsClient(uddiURL, wsName);
+      //cli = new PointsClient(uddiURL, wsURL);
     } catch (Exception e) {
       // FIXME - IGNORE
     }
@@ -148,7 +129,7 @@ public class PointsFrontEnd {
 	public String ctrlPing(String inputMessage) {
     PointsClient cli = null;
     try {
-      cli = new PointsClient(uddiURL, wsName);
+      //cli = new PointsClient(uddiURL, wsURL);
     } catch (Exception e) {
       // FIXME - IGNORE
     }
@@ -158,7 +139,7 @@ public class PointsFrontEnd {
 	public void ctrlClear() {
     PointsClient cli = null;
     try {
-      cli = new PointsClient(uddiURL, wsName);
+      //cli = new PointsClient(uddiURL, wsURL);
     } catch (Exception e) {
       // FIXME - IGNORE
     }
@@ -168,7 +149,7 @@ public class PointsFrontEnd {
 	public void ctrlInit(int startPoints) throws BadInitFault_Exception {
     PointsClient cli = null;
     try {
-      cli = new PointsClient(uddiURL, wsName);
+      //cli = new PointsClient(uddiURL, wsURL);
     } catch (Exception e) {
       // FIXME - IGNORE
     }

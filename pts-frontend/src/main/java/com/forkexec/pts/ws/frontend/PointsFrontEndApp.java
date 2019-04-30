@@ -28,7 +28,7 @@ public class PointsFrontEndApp {
     PointsFrontEnd client = null;
 
     System.out.printf("Creating client using UDDI at %s for server with name %s%n", uddiURL, wsName);
-    client = new PointsFrontEnd(uddiURL, "A41_Points1");
+    client = new PointsFrontEnd(uddiURL, 3);
 
     // The following remote invocation is just a basic example.
     // The actual tests are made using JUnit.
