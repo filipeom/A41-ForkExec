@@ -1,6 +1,7 @@
 # tex
 *.aux
-*synctex.gz
+*.synctex.gz
+*.out
 
 # Compiled class file
 *.class
