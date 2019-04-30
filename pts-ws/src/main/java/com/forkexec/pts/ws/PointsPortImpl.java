@@ -117,7 +117,8 @@ public class PointsPortImpl implements PointsPortType {
   }
 
   @Override
-  public String write(String userEmail, int points, Tag t) throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+  public String write(String userEmail, int points, Tag t)
+    throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
     final Points instance = Points.getInstance();
 
     Tag tag = instance.getUserTag(userEmail);
@@ -125,7 +126,7 @@ public class PointsPortImpl implements PointsPortType {
     try {
       if (t.getSeq() > tag.getSeq()) {
         instance.setUserTag(userEmail, tag);
-        instance.addPoints(userEmail, points);
+        instance.write(userEmail, points);
 
         return SUCCESS;
       }
@@ -133,6 +134,8 @@ public class PointsPortImpl implements PointsPortType {
       throwInvalidEmailFault(e.getMessage());
     } catch (InvalidPointsFaultException e) {
       throwInvalidPointsFault(e.getMessage());
+    } catch (NotEnoughBalanceFaultException e) {
+      throwNotEnoughBalanceFault(e.getMessage());
     }
     return FAILURE;
   }

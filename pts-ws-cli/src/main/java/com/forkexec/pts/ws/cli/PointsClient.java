@@ -133,7 +133,7 @@ public class PointsClient {
 		return port.read(userEmail);
 	}
 
-	public String write(String userEmail, int points, Tag t) throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+	public String write(String userEmail, int points, Tag t) throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
 		return port.write(userEmail, points, t);
 	}
 
