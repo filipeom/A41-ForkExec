@@ -10,6 +10,8 @@ import com.forkexec.pts.domain.exception.InvalidEmailFaultException;
 import com.forkexec.pts.domain.exception.InvalidPointsFaultException;
 import com.forkexec.pts.domain.exception.NotEnoughBalanceFaultException;
 
+import com.forkexec.pts.ws.Tag;
+
 /**
  * Points
  * <p>
@@ -35,6 +37,8 @@ public class Points {
 	 * synchronization.
 	 */
 	private Map<String, AtomicInteger> accounts = new ConcurrentHashMap<>();
+
+  private Map<String, Tag> userTags = new ConcurrentHashMap<>();
 
 	// Singleton -------------------------------------------------------------
 
@@ -68,6 +72,7 @@ public class Points {
 	public void reset() {
 		// clear current hash map
 		accounts.clear();
+    userTags.clear();
 		// set initial balance to default
 		initialBalance.set(DEFAULT_INITIAL_BALANCE);
 	}
@@ -122,6 +127,10 @@ public class Points {
 		if (points == null) {
 			points = new AtomicInteger(initialBalance.get());
 			accounts.put(accountId, points);
+      Tag tag = new Tag();
+      tag.setSeq(0);
+      tag.setCid(0);
+      userTags.put(accountId, tag);
 		}
 	}
 
@@ -135,6 +144,31 @@ public class Points {
 		}
 		points.addAndGet(pointsToAdd);
 	}
+
+  public Tag getUserTag(final String accountId) {
+    if(!userTags.containsKey(accountId) && !accounts.containsKey(accountId)) {
+      Tag tag = new Tag();
+      tag.setSeq(0);
+      tag.setCid(0);
+
+      userTags.put(accountId, tag);
+
+      AtomicInteger points = new AtomicInteger(initialBalance.get());
+      accounts.put(accountId, points);
+    }
+    return userTags.get(accountId);
+  }
+
+  public void setUserTag(final String accountId, Tag tag) {
+    if (!userTags.containsKey(accountId) && !accounts.containsKey(accountId)) {
+      AtomicInteger points = new AtomicInteger(initialBalance.get());
+
+      userTags.put(accountId, tag);
+      accounts.put(accountId, points);
+    } else {
+      userTags.replace(accountId, tag);
+    }
+  }
 
 	public void write(final String accountId, final int balance) {
 		//TODO for now we ignore if user does not exists

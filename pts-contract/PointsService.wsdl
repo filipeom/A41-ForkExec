@@ -149,8 +149,8 @@
       <xs:complexType name="write">
         <xs:sequence>
           <xs:element minOccurs="0" name="userEmail" type="xs:string" />
-          <xs:element name="points" type="xs:int" />
-          <xs:element minOccurs="0" name="newTag" type="tns:tag" />
+          <xs:element name="points"    type="xs:int" />
+          <xs:element minOccurs="0" name="t"         type="tns:tag" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="writeResponse">
@@ -239,11 +239,12 @@
       <input message="tns:read" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/readRequest" />
       <output message="tns:readResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/readResponse" />
       <fault message="tns:InvalidEmailFault" name="InvalidEmailFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/read/Fault/InvalidEmailFault" />
-      <fault message="tns:EmailAlreadyExistsFault" name="EmailAlreadyExistsFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/read/Fault/EmailAlreadyExistsFault" />
     </operation>
     <operation name="write">
       <input message="tns:write" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/writeRequest" />
       <output message="tns:writeResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/writeResponse" />
+      <fault message="tns:InvalidEmailFault" name="InvalidEmailFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/write/Fault/InvalidEmailFault" />
+      <fault message="tns:InvalidPointsFault" name="InvalidPointsFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/write/Fault/InvalidPointsFault" />
     </operation>
     <operation name="ctrlPing">
       <input message="tns:ctrlPing" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/ctrlPingRequest" />
@@ -295,9 +296,6 @@
       <output>
         <soap:body use="literal" />
       </output>
-      <fault name="EmailAlreadyExistsFault">
-        <soap:fault name="EmailAlreadyExistsFault" use="literal" />
-      </fault>
       <fault name="InvalidEmailFault">
         <soap:fault name="InvalidEmailFault" use="literal" />
       </fault>
@@ -310,6 +308,12 @@
       <output>
         <soap:body use="literal" />
       </output>
+      <fault name="InvalidEmailFault">
+        <soap:fault name="InvalidEmailFault" use="literal" />
+      </fault>
+      <fault name="InvalidPointsFault">
+        <soap:fault name="InvalidPointsFault" use="literal" />
+      </fault>
     </operation>
     <operation name="ctrlPing">
       <soap:operation soapAction="" />

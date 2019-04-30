@@ -16,205 +16,202 @@ import java.util.concurrent.ConcurrentHashMap;
  * below "map" the Java class to the WSDL definitions.
  */
 @WebService(
-		endpointInterface = "com.forkexec.pts.ws.PointsPortType",
-		wsdlLocation = "PointsService.wsdl",
-		name = "PointsWebService",
-		portName = "PointsPort",
-		targetNamespace = "http://ws.pts.forkexec.com/",
-		serviceName = "PointsService")
+endpointInterface = "com.forkexec.pts.ws.PointsPortType",
+wsdlLocation = "PointsService.wsdl",
+name = "PointsWebService",
+portName = "PointsPort",
+targetNamespace = "http://ws.pts.forkexec.com/",
+serviceName = "PointsService")
 public class PointsPortImpl implements PointsPortType {
 
-	/**
-	 * The Endpoint manager controls the Web Service instance during its whole
-	 * lifecycle.
-	 */
-	private final PointsEndpointManager endpointManager;
+  private final String SUCCESS = "ACK";
+
+  private final String FAILURE = "NACK";
+
+    /**
+     * The Endpoint manager controls the Web Service instance during its whole
+     * lifecycle.
+     */
+  private final PointsEndpointManager endpointManager;
 
 
-	private Map<String, Tag> tags = new ConcurrentHashMap<>();
 
-	/** Constructor receives a reference to the endpoint manager. */
-	public PointsPortImpl(final PointsEndpointManager endpointManager) {
-		this.endpointManager = endpointManager;
-	}
+  /** Constructor receives a reference to the endpoint manager. */
+  public PointsPortImpl(final PointsEndpointManager endpointManager) {
+    this.endpointManager = endpointManager;
+  }
 
-	// Main operations -------------------------------------------------------
-
-	@Override
-	public void activateUser(final String userEmail)
-			throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
-		try {
-			final Points points = Points.getInstance();
-			points.initAccount(userEmail);
-		} catch (EmailAlreadyExistsFaultException e) {
-			String message = e.getMessage();
-			throwEmailAlreadyExistsFault(message);
-		} catch (InvalidEmailFaultException e) {
-			String message = e.getMessage();
-			throwInvalidEmailFault(message);
-		}
-	}
-
-	@Override
-	public int pointsBalance(final String userEmail) throws InvalidEmailFault_Exception {
-		try {
-			final Points points = Points.getInstance();
-			return points.getAccountPoints(userEmail);
-		} catch (InvalidEmailFaultException e) {
-			throwInvalidEmailFault(e.getMessage());
-			return -1;
-		}
-	}
-
-	@Override
-	public int addPoints(final String userEmail, final int pointsToAdd)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-		try {
-			final Points points = Points.getInstance();
-			points.addPoints(userEmail, pointsToAdd);
-			return points.getAccountPoints(userEmail);
-		} catch (InvalidEmailFaultException e) {
-			throwInvalidEmailFault(e.getMessage());
-		} catch (InvalidPointsFaultException e) {
-			throwInvalidPointsFault(e.getMessage());
-		}
-		return -1;
-	}
-
-	@Override
-	public int spendPoints(final String userEmail, final int pointsToSpend)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
-		try {
-			final Points points = Points.getInstance();
-			points.removePoints(userEmail, pointsToSpend);
-			return points.getAccountPoints(userEmail);
-		} catch (InvalidEmailFaultException e) {
-			throwInvalidEmailFault(e.getMessage());
-		} catch (InvalidPointsFaultException e) {
-			throwInvalidPointsFault(e.getMessage());
-		} catch (NotEnoughBalanceFaultException e) {
-			throwNotEnoughBalanceFault(e.getMessage());
-		}
-		return -1;
-	}
-
-	// Control operations ----------------------------------------------------
+  // Main operations -------------------------------------------------------
 
   @Override
-  public Value read(String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
-		final Points points = Points.getInstance();
-
-		try {
-
-			if( !points.checkUser(userEmail) )
-				points.initAccount(userEmail);
-
-	    Tag tag = tags.get(userEmail);
-			int value = points.getAccountPoints(userEmail);
-			return createValue(tag, value);
-
-		} catch (InvalidEmailFaultException e) {
-			throwInvalidEmailFault(e.getMessage());
-		} catch (EmailAlreadyExistsFaultException e) {
-			throwEmailAlreadyExistsFault(e.getMessage());
-		}
-
-		return null;
+  public void activateUser(final String userEmail)
+    throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+    try {
+      final Points points = Points.getInstance();
+      points.initAccount(userEmail);
+    } catch (EmailAlreadyExistsFaultException e) {
+      String message = e.getMessage();
+      throwEmailAlreadyExistsFault(message);
+    } catch (InvalidEmailFaultException e) {
+      String message = e.getMessage();
+      throwInvalidEmailFault(message);
+    }
   }
 
   @Override
-  public String write(String userEmail, int points, Tag newtag) {
-		Tag tag = tags.get(userEmail);
-
-		if (tag != null) {
-
-			if (newtag.getSeq() > tag.getSeq()) {
-				final Points instance = Points.getInstance();
-
-				tags.replace(userEmail, newtag);
-				instance.write(userEmail, points);
-
-				return "ACK";
-			}
-		}
-    return "NACK";
+  public int pointsBalance(final String userEmail) throws InvalidEmailFault_Exception {
+    try {
+      final Points points = Points.getInstance();
+      return points.getAccountPoints(userEmail);
+    } catch (InvalidEmailFaultException e) {
+      throwInvalidEmailFault(e.getMessage());
+      return -1;
+    }
   }
 
-	public Value createValue(Tag tag, int val) {
-		Value value = new Value();
-		value.setVal(val);
-		value.setTag(tag);
-		return value;
-	}
+  @Override
+  public int addPoints(final String userEmail, final int pointsToAdd)
+    throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+    try {
+      final Points points = Points.getInstance();
+      points.addPoints(userEmail, pointsToAdd);
+      return points.getAccountPoints(userEmail);
+    } catch (InvalidEmailFaultException e) {
+      throwInvalidEmailFault(e.getMessage());
+    } catch (InvalidPointsFaultException e) {
+      throwInvalidPointsFault(e.getMessage());
+    }
+    return -1;
+  }
 
-	// Control operations ----------------------------------------------------
+  @Override
+  public int spendPoints(final String userEmail, final int pointsToSpend)
+    throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+    try {
+      final Points points = Points.getInstance();
+      points.removePoints(userEmail, pointsToSpend);
+      return points.getAccountPoints(userEmail);
+    } catch (InvalidEmailFaultException e) {
+      throwInvalidEmailFault(e.getMessage());
+    } catch (InvalidPointsFaultException e) {
+      throwInvalidPointsFault(e.getMessage());
+    } catch (NotEnoughBalanceFaultException e) {
+      throwNotEnoughBalanceFault(e.getMessage());
+    }
+    return -1;
+  }
 
-	/** Diagnostic operation to check if service is running. */
-	@Override
-	public String ctrlPing(String inputMessage) {
-		// If no input is received, return a default name.
-		if (inputMessage == null || inputMessage.trim().length() == 0)
-			inputMessage = "friend";
+  // read write operations ------------------------------------------------
 
-		// If the service does not have a name, return a default.
-		String wsName = endpointManager.getWsName();
-		if (wsName == null || wsName.trim().length() == 0)
-			wsName = PointsApp.class.getSimpleName();
+  @Override
+  public Value read(String userEmail) throws InvalidEmailFault_Exception {
+    final Points points = Points.getInstance();
+    try {
+      int value = points.getAccountPoints(userEmail);
+      Tag tag = points.getUserTag(userEmail);
+      return createValue(value, tag);
+    } catch (InvalidEmailFaultException e) {
+      throwInvalidEmailFault(e.getMessage());
+    }
+    return null;
+  }
 
-		// Build a string with a message to return.
-		final StringBuilder builder = new StringBuilder();
-		builder.append("Hello ").append(inputMessage);
-		builder.append(" from ").append(wsName);
-		return builder.toString();
-	}
+  @Override
+  public String write(String userEmail, int points, Tag t) throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+    final Points instance = Points.getInstance();
 
-	/** Return all variables to default values. */
-	@Override
-	public void ctrlClear() {
-		Points.getInstance().reset();
-	}
+    Tag tag = instance.getUserTag(userEmail);
 
-	/** Set variables with specific values. */
-	@Override
-	public void ctrlInit(final int startPoints) throws BadInitFault_Exception {
-		Points.getInstance().setInitialBalance(startPoints);
-	}
+    try {
+      if (t.getSeq() > tag.getSeq()) {
+        instance.setUserTag(userEmail, tag);
+        instance.addPoints(userEmail, points);
 
-	// Exception helpers -----------------------------------------------------
+        return SUCCESS;
+      }
+    } catch (InvalidEmailFaultException e) {
+      throwInvalidEmailFault(e.getMessage());
+    } catch (InvalidPointsFaultException e) {
+      throwInvalidPointsFault(e.getMessage());
+    }
+    return FAILURE;
+  }
 
-	/** Helper to throw a new BadInit exception. */
-	private void throwBadInit(final String message) throws BadInitFault_Exception {
-		final BadInitFault faultInfo = new BadInitFault();
-		faultInfo.message = message;
-		throw new BadInitFault_Exception(message, faultInfo);
-	}
+  public Value createValue(int val, Tag tag) {
+    Value value = new Value();
+    value.setVal(val);
+    value.setTag(tag);
+    return value;
+  }
 
-	/** Helper to throw a new EmailAlreadyExistsFault exception. */
-	private void throwEmailAlreadyExistsFault(final String message) throws EmailAlreadyExistsFault_Exception {
-		final EmailAlreadyExistsFault faultInfo = new EmailAlreadyExistsFault();
-		faultInfo.message = message;
-		throw new EmailAlreadyExistsFault_Exception(message, faultInfo);
-	}
+  // Control operations ----------------------------------------------------
 
-	/** Helper to throw a new InvalidEmailFault exception. */
-	private void throwInvalidEmailFault(final String message) throws InvalidEmailFault_Exception {
-		final InvalidEmailFault faultInfo = new InvalidEmailFault();
-		faultInfo.message = message;
-		throw new InvalidEmailFault_Exception(message, faultInfo);
-	}
+  /** Diagnostic operation to check if service is running. */
+  @Override
+  public String ctrlPing(String inputMessage) {
+    // If no input is received, return a default name.
+    if (inputMessage == null || inputMessage.trim().length() == 0)
+      inputMessage = "friend";
 
-	/** Helper to throw a new NotEnoughBalanceFault exception. */
-	private void throwNotEnoughBalanceFault(final String message) throws NotEnoughBalanceFault_Exception {
-		final NotEnoughBalanceFault faultInfo = new NotEnoughBalanceFault();
-		faultInfo.message = message;
-		throw new NotEnoughBalanceFault_Exception(message, faultInfo);
-	}
+    // If the service does not have a name, return a default.
+    String wsName = endpointManager.getWsName();
+    if (wsName == null || wsName.trim().length() == 0)
+      wsName = PointsApp.class.getSimpleName();
 
-	/** Helper to throw a new InvalidPointsFault exception. */
-	private void throwInvalidPointsFault(final String message) throws InvalidPointsFault_Exception {
-		final InvalidPointsFault faultInfo = new InvalidPointsFault();
-		faultInfo.message = message;
-		throw new InvalidPointsFault_Exception(message, faultInfo);
-	}
+    // Build a string with a message to return.
+    final StringBuilder builder = new StringBuilder();
+    builder.append("Hello ").append(inputMessage);
+    builder.append(" from ").append(wsName);
+    return builder.toString();
+  }
+
+  /** Return all variables to default values. */
+  @Override
+  public void ctrlClear() {
+    Points.getInstance().reset();
+  }
+
+  /** Set variables with specific values. */
+  @Override
+  public void ctrlInit(final int startPoints) throws BadInitFault_Exception {
+    Points.getInstance().setInitialBalance(startPoints);
+  }
+
+  // Exception helpers -----------------------------------------------------
+
+  /** Helper to throw a new BadInit exception. */
+  private void throwBadInit(final String message) throws BadInitFault_Exception {
+    final BadInitFault faultInfo = new BadInitFault();
+    faultInfo.message = message;
+    throw new BadInitFault_Exception(message, faultInfo);
+  }
+
+  /** Helper to throw a new EmailAlreadyExistsFault exception. */
+  private void throwEmailAlreadyExistsFault(final String message) throws EmailAlreadyExistsFault_Exception {
+    final EmailAlreadyExistsFault faultInfo = new EmailAlreadyExistsFault();
+    faultInfo.message = message;
+    throw new EmailAlreadyExistsFault_Exception(message, faultInfo);
+  }
+
+  /** Helper to throw a new InvalidEmailFault exception. */
+  private void throwInvalidEmailFault(final String message) throws InvalidEmailFault_Exception {
+    final InvalidEmailFault faultInfo = new InvalidEmailFault();
+    faultInfo.message = message;
+    throw new InvalidEmailFault_Exception(message, faultInfo);
+  }
+
+  /** Helper to throw a new NotEnoughBalanceFault exception. */
+  private void throwNotEnoughBalanceFault(final String message) throws NotEnoughBalanceFault_Exception {
+    final NotEnoughBalanceFault faultInfo = new NotEnoughBalanceFault();
+    faultInfo.message = message;
+    throw new NotEnoughBalanceFault_Exception(message, faultInfo);
+  }
+
+  /** Helper to throw a new InvalidPointsFault exception. */
+  private void throwInvalidPointsFault(final String message) throws InvalidPointsFault_Exception {
+    final InvalidPointsFault faultInfo = new InvalidPointsFault();
+    faultInfo.message = message;
+    throw new InvalidPointsFault_Exception(message, faultInfo);
+  }
 
 }
