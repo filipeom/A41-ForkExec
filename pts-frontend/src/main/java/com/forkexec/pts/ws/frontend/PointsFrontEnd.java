@@ -14,6 +14,9 @@ import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 import com.forkexec.pts.ws.PointsPortType;
 import com.forkexec.pts.ws.PointsService;
 import com.forkexec.pts.ws.cli.PointsClient;
+import com.forkexec.pts.ws.cli.PointsClientException;
+import com.forkexec.pts.ws.Value;
+import com.forkexec.pts.ws.Tag;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 
@@ -94,12 +97,26 @@ public class PointsFrontEnd {
 
 	public int pointsBalance(String userEmail) throws InvalidEmailFault_Exception {
     PointsClient cli = null;
+		Value maxValue = null;
+		int currentSeq = 0;
+
     try {
-      //cli = new PointsClient(uddiURL, wsURL);
-    } catch (Exception e) {
-      // FIXME - IGNORE
-    }
-		return cli.pointsBalance(userEmail);
+			for(int i = 0; i < nReplicas; i++) {
+				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
+				Value value = cli.read(userEmail);
+				Tag tag = value.getTag();
+				if(  tag.getSeq() > currentSeq ) {
+					maxValue = value;
+					currentSeq = tag.getSeq();
+				}
+			}
+
+    } catch (PointsClientException | PointsFrontEndException e) {
+			throw new RuntimeException("Failed to lookup Points Service.");
+    } catch (InvalidEmailFault_Exception e) {
+			throw new InvalidEmailFault_Exception( e.getMessage(), e.getFaultInfo());
+		}
+		return maxValue.getVal();
 	}
 
 	public int addPoints(String userEmail, int pointsToAdd)
