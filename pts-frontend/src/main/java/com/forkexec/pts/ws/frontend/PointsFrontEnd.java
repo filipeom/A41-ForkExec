@@ -122,14 +122,49 @@ public class PointsFrontEnd {
 	}
 
 	public int addPoints(String userEmail, int pointsToAdd)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-    PointsClient cli = null;
-    try {
-      //cli = new PointsClient(uddiURL, wsURL);
-    } catch (Exception e) {
-      // FIXME - IGNORE
-    }
-		return cli.addPoints(userEmail, pointsToAdd);
+			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+		PointsClient cli = null;
+		Value maxValue = null;
+		int currentSeq = 0;
+		int numSuccess = 0;
+		int points = 0;
+
+		try {
+
+			for(int i = 0; i < nReplicas; i++) {
+				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
+				Value value = cli.read(userEmail);
+				Tag tag = value.getTag();
+				if(  tag.getSeq() > currentSeq ) {
+					maxValue = value;
+					currentSeq = tag.getSeq();
+				}
+			}
+
+			Tag newTag = createTag(maxValue.getTag());
+			points = maxValue.getVal() + pointsToAdd;
+
+			for(int i = 0; i < nReplicas; i++) {
+				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
+				if ( cli.write(userEmail, points, newTag).equals(SUCCESS) )
+					numSuccess ++;
+			}
+
+		} catch (PointsClientException | PointsFrontEndException e) {
+			throw new RuntimeException("Failed to lookup Points Service.");
+		} catch (InvalidPointsFault_Exception e) {
+			throw new InvalidPointsFault_Exception( e.getMessage(), e.getFaultInfo());
+		} catch (InvalidEmailFault_Exception e) {
+			throw new InvalidEmailFault_Exception( e.getMessage(), e.getFaultInfo());
+		} catch (NotEnoughBalanceFault_Exception e) {
+			throw new NotEnoughBalanceFault_Exception ( e.getMessage(), e.getFaultInfo());
+		}
+
+		if( numSuccess == nReplicas)
+			return points;
+
+		return -1;
+
 	}
 
 	public int spendPoints(String userEmail, int pointsToSpend)
