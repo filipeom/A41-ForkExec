@@ -251,12 +251,14 @@ public class PointsFrontEnd {
 
 	public void ctrlInit(int startPoints) throws BadInitFault_Exception {
     PointsClient cli = null;
-    try {
-      //cli = new PointsClient(uddiURL, wsURL);
-    } catch (Exception e) {
-      // FIXME - IGNORE
-    }
-    cli.ctrlInit(startPoints);
-	}
 
+    try {
+			for (int i = 0; i < nReplicas; i++) {
+				cli = new PointsClient(uddiLookup(POINTS + Integer.toString(i + 1)));
+				cli.ctrlInit(startPoints);
+			}
+		} catch (PointsClientException | PointsFrontEndException e) {
+      throw new RuntimeException("Failed to lookup Points Service.");
+    }
+	}
 }
