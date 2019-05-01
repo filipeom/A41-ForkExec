@@ -4,6 +4,7 @@ import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
 import java.util.Map;
 
+import javax.xml.ws.Response;
 import javax.xml.ws.BindingProvider;
 
 import com.forkexec.pts.ws.BadInitFault_Exception;
@@ -13,6 +14,8 @@ import com.forkexec.pts.ws.PointsPortType;
 import com.forkexec.pts.ws.PointsService;
 import com.forkexec.pts.ws.Tag;
 import com.forkexec.pts.ws.Value;
+import com.forkexec.pts.ws.ReadResponse;
+import com.forkexec.pts.ws.WriteResponse;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 
@@ -112,9 +115,17 @@ public class PointsClient {
 		return port.read(userEmail);
 	}
 
+  public Response<ReadResponse> readAsync(String userEmail) {
+    return port.readAsync(userEmail);
+  }
+
 	public String write(String userEmail, int points, Tag t) throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
 		return port.write(userEmail, points, t);
 	}
+
+  public Response<WriteResponse> writeAsync(String userEmail, int points, Tag t) {
+    return port.writeAsync(userEmail, points, t);
+  }
 
 	// control operations -----------------------------------------------------
 
