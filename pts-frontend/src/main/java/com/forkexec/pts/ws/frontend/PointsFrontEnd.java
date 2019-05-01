@@ -61,14 +61,14 @@ public class PointsFrontEnd {
   }
 
   /** constructor with provided UDDI location and name */
-  public PointsFrontEnd(String uddiURL, int N) throws PointsFrontEndException {
+  public PointsFrontEnd(String uddiURL, int N) {
     this.uddiURL = uddiURL;
     this.N = N;
     listUrls();
   }
 
   /** UDDI lookup */
-  private String uddiLookup(String wsName) throws PointsFrontEndException {
+  private String uddiLookup(String wsName) {
     String wsURL;
     try {
       if (verbose)
@@ -81,12 +81,12 @@ public class PointsFrontEnd {
 
     } catch (Exception e) {
       String msg = String.format("FrontEnd failed lookup on UDDI at %s!", uddiURL);
-      throw new PointsFrontEndException(msg, e);
+      throw new RuntimeException(msg);
     }
 
     if (wsURL == null) {
       String msg = String.format("Service with name %s not found on UDDI at %s", wsName, uddiURL);
-      throw new PointsFrontEndException(msg);
+      throw new RuntimeException(msg);
     }
 
     return wsURL;
@@ -94,12 +94,8 @@ public class PointsFrontEnd {
 
   private void listUrls() {
     Collection<String> replicas = new ArrayList<>();
-    try {
-      for (int i = 0; i < N; i++)
-        replicas.add(uddiLookup(POINTS + Integer.toString(i+1)));
-    } catch(PointsFrontEndException e) {
-      throw new RuntimeException("Failed to lookup Points Service.");
-    }
+    for (int i = 0; i < N; i++)
+      replicas.add(uddiLookup(POINTS + Integer.toString(i+1)));
     this.urls = replicas;
   }
 

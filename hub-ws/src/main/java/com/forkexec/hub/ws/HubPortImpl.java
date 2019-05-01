@@ -58,13 +58,22 @@ public class HubPortImpl implements HubPortType {
    */
   private HubEndpointManager endpointManager;
 
-  private final int REPLICAS = 3;
+  private static final int REPLICAS = 3;
+  
+  private static final String UDDIURL =  "http://a41:pMALqXmc@uddi.sd.rnl.tecnico.ulisboa.pt:9090";
 
   /** Constructor receives a reference to the endpoint manager. */
   public HubPortImpl(HubEndpointManager endpointManager) {
     this.endpointManager = endpointManager;
   }
+  
+  private static class SingletonHolder {
+    private static final PointsFrontEnd INSTANCE = new PointsFrontEnd(UDDIURL, REPLICAS);
+  }
 
+  public static synchronized PointsFrontEnd getFrontEnd() {
+    return SingletonHolder.INSTANCE;
+  }
   // UDDIRecord getters ----------------------------------------------------
 
   public Collection<UDDIRecord> getRestaurants() throws UDDINamingException {
@@ -80,11 +89,6 @@ public class HubPortImpl implements HubPortType {
       return new RestaurantClient(endpointManager.getUddiNaming().lookup(rstName));
   }
 
-  public PointsFrontEnd getPointsClient()
-      throws UDDINamingException, PointsFrontEndException {
-      return new PointsFrontEnd(endpointManager.getUddiNaming().getUDDIUrl(), this.REPLICAS);
-  }
-
   // Main operations -------------------------------------------------------
 
   @Override
@@ -93,7 +97,7 @@ public class HubPortImpl implements HubPortType {
       throwInvalidUserId("Invalid email!");
 
     try {
-      getPointsClient().activateUser(userId);
+      getFrontEnd().activateUser(userId);
 
     } catch(InvalidEmailFault_Exception e) {
       throwInvalidUserId(e.getMessage());
@@ -127,7 +131,7 @@ public class HubPortImpl implements HubPortType {
     }
 
     try {
-      getPointsClient().addPoints(userId, convertEURpoints(moneyToAdd));
+      getFrontEnd().addPoints(userId, convertEURpoints(moneyToAdd));
 
     } catch(InvalidEmailFault_Exception e) {
       throwInvalidUserId(e.getMessage());
@@ -228,7 +232,7 @@ public class HubPortImpl implements HubPortType {
     // Sum Cart Price - CartItem price contains sub total of menu (menuPrice * quantity)
     int totalPrice = cart.stream().mapToInt(o -> o.getPrice() * o.getFoodQuantity()).sum();
     try {
-      getPointsClient().spendPoints(userId, totalPrice);
+      getFrontEnd().spendPoints(userId, totalPrice);
     } catch (InvalidEmailFault_Exception e) {
       throwInvalidUserId(e.getMessage());
     } catch (InvalidPointsFault_Exception | NotEnoughBalanceFault_Exception e) {
@@ -261,7 +265,7 @@ public class HubPortImpl implements HubPortType {
       throwInvalidUserId("Invalid email!");
 
     try {
-      return getPointsClient().pointsBalance(userId);
+      return getFrontEnd().pointsBalance(userId);
 
     } catch(InvalidEmailFault_Exception e) {
       throwInvalidUserId(e.getMessage());
@@ -335,14 +339,10 @@ public class HubPortImpl implements HubPortType {
         RestaurantClient rstClient = new RestaurantClient(record.getUrl());
         builder.append("\n").append(rstClient.ctrlPing(inputMessage));
       }
-
-      for (UDDIRecord record : getPoints()) {
-        PointsClient ptsClient = new PointsClient(record.getUrl());
-        builder.append("\n").append(ptsClient.ctrlPing(inputMessage));
-      }
+      builder.append("\n").append(getFrontEnd().ctrlPing(inputMessage));
     } catch (UDDINamingException e) {
       throw new RuntimeException("Unable to find Restaurants or Points servers");
-    } catch (RestaurantClientException | PointsClientException e) {
+    } catch (RestaurantClientException e) {
       throw new RuntimeException("Unable to construct Restaurant or Points client.");
     }
     return builder.toString();
@@ -357,14 +357,10 @@ public class HubPortImpl implements HubPortType {
         RestaurantClient rstClient = new RestaurantClient(record.getUrl());
         rstClient.ctrlClear();
       }
-
-      for (UDDIRecord record : getPoints()) {
-        PointsClient ptsClient = new PointsClient(record.getUrl());
-        ptsClient.ctrlClear();
-      }
+      getFrontEnd().ctrlClear();
     } catch (UDDINamingException e) {
       throw new RuntimeException("Unable to find Restaurants or Points servers");
-    } catch (RestaurantClientException | PointsClientException e) {
+    } catch (RestaurantClientException e) {
       throw new RuntimeException("Unable to construct Restaurant or Points client.");
     }
     return;
@@ -395,12 +391,7 @@ public class HubPortImpl implements HubPortType {
       throwInvalidInit("Start points cannot be zero!");
 
     try {
-      for (UDDIRecord record : getPoints()) {
-        PointsClient ptsClient = new PointsClient(record.getUrl());
-        ptsClient.ctrlInit(startPoints);
-      }
-    } catch (UDDINamingException | PointsClientException e) {
-      throw new RuntimeException("Unable to get Points Client.");
+      getFrontEnd().ctrlInit(startPoints);
     } catch (Exception e) {
       throwInvalidInit("Could not init the points");
     }

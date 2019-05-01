@@ -64,7 +64,6 @@ public class PointsClient {
   public PointsClient(Collection<String> wsURLs) {
     this.wsURLs = wsURLs;
     this.Q = wsURLs.size() / 2 + 1;
-    System.out.println("URL SIZE: " + wsURLs.size() + " QOUROM: " + this.Q);
     createStubs();
   }
 
