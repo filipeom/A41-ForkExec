@@ -96,11 +96,13 @@ public class PointsFrontEnd {
     PointsClient cli = null;
 		int currentSeq = 0;
 
+    // TODO: VERIFY THE FUCKING ARGUMENTS FFS
+
     try {
 		  cli = new PointsClient( uddiLookup(POINTS + Integer.toString(1) ) );
       Value maxValue = cli.read(userEmail);
-			for(int i = 1; i < N; i++) {
-				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
+			for(int i = 2; i <= N; i++) {
+				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i) ) );
 				Value value = cli.read(userEmail);
 				Tag tag = value.getTag();
 				if( tag.getSeq() > currentSeq ) {
@@ -119,15 +121,17 @@ public class PointsFrontEnd {
 	public int addPoints(String userEmail, int pointsToAdd)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
 		PointsClient cli = null;
-		Value maxValue = null;
 		int currentSeq = 0;
 		int numSuccess = 0;
 		int points = 0;
+    
+    // TODO: VERIFY THE FUCKING ARGUMENTS FFS
 
 		try {
-
-			for(int i = 0; i < N; i++) {
-				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
+			cli = new PointsClient( uddiLookup(POINTS + Integer.toString(1) ) );
+  		Value maxValue = cli.read(userEmail);
+			for(int i = 2; i <= N; i++) {
+				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i) ) );
 				Value value = cli.read(userEmail);
 				Tag tag = value.getTag();
 				if(  tag.getSeq() > currentSeq ) {
@@ -139,8 +143,8 @@ public class PointsFrontEnd {
 			Tag newTag = createTag(maxValue.getTag());
 			points = maxValue.getVal() + pointsToAdd;
 
-			for(int i = 0; i < N; i++) {
-				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
+			for(int i = 1; i <= N; i++) {
+				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i) ) );
 				if ( cli.write(userEmail, points, newTag).equals(SUCCESS) )
 					numSuccess ++;
 			}
@@ -153,24 +157,23 @@ public class PointsFrontEnd {
 			throw new InvalidEmailFault_Exception( e.getMessage(), e.getFaultInfo());
 		}
 
-		if( numSuccess == N)
-			return points;
-
-		return -1;
+	  return points;
 	}
 
 	public int spendPoints(String userEmail, int pointsToSpend)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
     PointsClient cli = null;
-		Value maxValue = null;
 		int currentSeq = 0;
 		int numSuccess = 0;
 		int points = 0;
 
-    try {
+    // TODO: VERIFY THE FUCKING ARGUMENTS FFS
 
-			for(int i = 0; i < N; i++) {
-				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
+    try {
+   		cli = new PointsClient( uddiLookup(POINTS + Integer.toString(1) ) );
+		  Value maxValue = cli.read(userEmail);
+			for(int i = 2; i <= N; i++) {
+	  		cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i) ) );
 				Value value = cli.read(userEmail);
 				Tag tag = value.getTag();
 				if(  tag.getSeq() > currentSeq ) {
@@ -185,8 +188,8 @@ public class PointsFrontEnd {
         throw new NotEnoughBalanceFault_Exception("Not Enough Points to spend");
       }
 
-			for(int i = 0; i < N; i++) {
-				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
+			for(int i = 1; i <= N; i++) {
+				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i) ) );
 				if ( cli.write(userEmail, points, newTag).equals(SUCCESS) )
 					numSuccess ++;
 			}
@@ -200,12 +203,7 @@ public class PointsFrontEnd {
 		} catch (NotEnoughBalanceFault_Exception e) {
       throw new NotEnoughBalanceFault_Exception(e.getMessage());
     } 
-
-		if( numSuccess == N)
-			return points;
-
-		return -1;
-
+  	return points;
 	}
 
 	public Tag createTag(Tag t) {
