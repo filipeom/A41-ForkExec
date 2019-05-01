@@ -1,17 +1,11 @@
 package com.forkexec.pts.ws.frontend;
 
-import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
-
-import java.util.Map;
 import java.util.regex.Pattern;
-
-import javax.xml.ws.BindingProvider;
 
 import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
-import com.forkexec.pts.ws.PointsPortType;
-import com.forkexec.pts.ws.PointsService;
+import com.forkexec.pts.ws.InvalidPointsFault;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
 import com.forkexec.pts.ws.Value;
@@ -136,8 +130,6 @@ public class PointsFrontEnd {
   // remote invocation methods ----------------------------------------------
 
   public void activateUser(String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
-    // TODO: VERIFY THE ARGUMENTS 
-
     Value maxValue = getMaxValue(userEmail);
 
     if (maxValue.getTag().getSeq() > 0)
@@ -151,14 +143,14 @@ public class PointsFrontEnd {
   }
 
   public int pointsBalance(String userEmail) throws InvalidEmailFault_Exception {
-    // TODO: VERIFY THE ARGUMENTS 
-
     return getMaxValue(userEmail).getVal();
   }
 
   public int addPoints(String userEmail, int pointsToAdd)
       throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-      // TODO: VERIFY THE ARGUMENTS 
+
+      if (pointsToAdd < 0)
+        throwInvalidPointsFault("Points cannot be negative!");
 
       Value maxValue = getMaxValue(userEmail);
 
@@ -171,7 +163,9 @@ public class PointsFrontEnd {
 
   public int spendPoints(String userEmail, int pointsToSpend)
       throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
-      // TODO: VERIFY THE ARGUMENTS 
+
+      if (pointsToSpend < 0)
+        throwInvalidPointsFault("Points cannot be negative!");
 
       Value maxValue = getMaxValue(userEmail);
 
@@ -239,4 +233,11 @@ public class PointsFrontEnd {
     }
   }
 
+
+  /** Helper to throw a new InvalidPointsFault exception. */
+  private void throwInvalidPointsFault(final String message) throws InvalidPointsFault_Exception {
+    InvalidPointsFault faultInfo = new InvalidPointsFault();
+    faultInfo.setMessage(message);
+    throw new InvalidPointsFault_Exception(message, faultInfo);
+  }
 }
