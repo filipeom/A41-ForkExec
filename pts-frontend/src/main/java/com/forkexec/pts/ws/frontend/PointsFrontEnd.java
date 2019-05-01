@@ -26,19 +26,16 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
  */
 public class PointsFrontEnd {
 
-	/** WS service */
-	PointsService service = null;
-
-	/** WS port (port type is the interface, port is the implementation) */
-	PointsPortType port = null;
-
 	/** UDDI server URL */
 	private String uddiURL = null;
 
-	private int nReplicas = 0;
+  /** Number of backup servers */
+	private int N = 0;
 
+  /** Constant, service prefix */
 	private final String POINTS = "A41_Points";
 
+  /** Constant, acknowledge */
 	private final String SUCCESS = "ACK";
 
 	/** output option **/
@@ -55,7 +52,7 @@ public class PointsFrontEnd {
 	/** constructor with provided UDDI location and name */
 	public PointsFrontEnd(String uddiURL, int N) throws PointsFrontEndException {
 		this.uddiURL = uddiURL;
-		this.nReplicas = N;
+		this.N = N;
 	}
 
 	/** UDDI lookup */
@@ -97,27 +94,26 @@ public class PointsFrontEnd {
 
 	public int pointsBalance(String userEmail) throws InvalidEmailFault_Exception {
     PointsClient cli = null;
-		Value maxValue = null;
 		int currentSeq = 0;
 
     try {
-			for(int i = 0; i < nReplicas; i++) {
+		  cli = new PointsClient( uddiLookup(POINTS + Integer.toString(1) ) );
+      Value maxValue = cli.read(userEmail);
+			for(int i = 1; i < N; i++) {
 				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
 				Value value = cli.read(userEmail);
 				Tag tag = value.getTag();
-				if(  tag.getSeq() > currentSeq ) {
+				if( tag.getSeq() > currentSeq ) {
 					maxValue = value;
 					currentSeq = tag.getSeq();
 				}
 			}
-
+      return maxValue.getVal();
     } catch (PointsClientException | PointsFrontEndException e) {
 			throw new RuntimeException("Failed to lookup Points Service.");
     } catch (InvalidEmailFault_Exception e) { 
 			throw new InvalidEmailFault_Exception( e.getMessage(), e.getFaultInfo());
     } 
-
-		return maxValue.getVal();
 	}
 
 	public int addPoints(String userEmail, int pointsToAdd)
@@ -130,7 +126,7 @@ public class PointsFrontEnd {
 
 		try {
 
-			for(int i = 0; i < nReplicas; i++) {
+			for(int i = 0; i < N; i++) {
 				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
 				Value value = cli.read(userEmail);
 				Tag tag = value.getTag();
@@ -143,7 +139,7 @@ public class PointsFrontEnd {
 			Tag newTag = createTag(maxValue.getTag());
 			points = maxValue.getVal() + pointsToAdd;
 
-			for(int i = 0; i < nReplicas; i++) {
+			for(int i = 0; i < N; i++) {
 				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
 				if ( cli.write(userEmail, points, newTag).equals(SUCCESS) )
 					numSuccess ++;
@@ -157,7 +153,7 @@ public class PointsFrontEnd {
 			throw new InvalidEmailFault_Exception( e.getMessage(), e.getFaultInfo());
 		}
 
-		if( numSuccess == nReplicas)
+		if( numSuccess == N)
 			return points;
 
 		return -1;
@@ -173,7 +169,7 @@ public class PointsFrontEnd {
 
     try {
 
-			for(int i = 0; i < nReplicas; i++) {
+			for(int i = 0; i < N; i++) {
 				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
 				Value value = cli.read(userEmail);
 				Tag tag = value.getTag();
@@ -189,7 +185,7 @@ public class PointsFrontEnd {
         throw new NotEnoughBalanceFault_Exception("Not Enough Points to spend");
       }
 
-			for(int i = 0; i < nReplicas; i++) {
+			for(int i = 0; i < N; i++) {
 				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
 				if ( cli.write(userEmail, points, newTag).equals(SUCCESS) )
 					numSuccess ++;
@@ -205,7 +201,7 @@ public class PointsFrontEnd {
       throw new NotEnoughBalanceFault_Exception(e.getMessage());
     } 
 
-		if( numSuccess == nReplicas)
+		if( numSuccess == N)
 			return points;
 
 		return -1;
@@ -226,7 +222,7 @@ public class PointsFrontEnd {
 		StringBuilder builder = new StringBuilder();
 
     try {
-			for(int i = 0; i < nReplicas; i++) {
+			for(int i = 0; i < N; i++) {
 				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
 				if ( cli.ctrlPing(inputMessage) != null )
 					builder.append( cli.ctrlPing(inputMessage) );
@@ -240,7 +236,7 @@ public class PointsFrontEnd {
 	public void ctrlClear() {
     PointsClient cli = null;
     try {
-			for(int i = 0; i < nReplicas; i++) {
+			for(int i = 0; i < N; i++) {
 				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
 				cli.ctrlClear();
 			}
@@ -253,7 +249,7 @@ public class PointsFrontEnd {
     PointsClient cli = null;
 
     try {
-			for (int i = 0; i < nReplicas; i++) {
+			for (int i = 0; i < N; i++) {
 				cli = new PointsClient(uddiLookup(POINTS + Integer.toString(i + 1)));
 				cli.ctrlInit(startPoints);
 			}
