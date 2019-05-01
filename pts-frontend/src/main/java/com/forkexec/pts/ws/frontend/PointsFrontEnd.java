@@ -149,7 +149,7 @@ public class PointsFrontEnd {
   public int addPoints(String userEmail, int pointsToAdd)
       throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
 
-      if (pointsToAdd < 0)
+      if (pointsToAdd <= 0)
         throwInvalidPointsFault("Points cannot be negative!");
 
       Value maxValue = getMaxValue(userEmail);
@@ -164,7 +164,7 @@ public class PointsFrontEnd {
   public int spendPoints(String userEmail, int pointsToSpend)
       throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
 
-      if (pointsToSpend < 0)
+      if (pointsToSpend <= 0)
         throwInvalidPointsFault("Points cannot be negative!");
 
       Value maxValue = getMaxValue(userEmail);

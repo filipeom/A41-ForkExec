@@ -153,7 +153,7 @@ public class Points {
 		throws InvalidEmailFaultException, InvalidPointsFaultException {
 		checkValidEmail(accountId);
 
-		if (pointsToSet <= 0)
+		if (pointsToSet < 0)
 			throw new InvalidPointsFaultException("Value cannot be negative or zero!");
 
 		final AtomicInteger points = accounts.get(accountId);
