@@ -118,7 +118,7 @@ public class PointsPortImpl implements PointsPortType {
   // VIEW HELPERS 
   //========================================================================
 
-  public Value createValue(int val, Tag tag) {
+  private Value createValue(int val, Tag tag) {
     Value value = new Value();
     value.setVal(val);
     value.setTag(tag);

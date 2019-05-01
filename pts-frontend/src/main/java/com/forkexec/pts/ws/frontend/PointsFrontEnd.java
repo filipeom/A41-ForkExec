@@ -179,7 +179,7 @@ public class PointsFrontEnd {
       return points;
   }
 
-  public Value newValue(int val, Tag t) {
+  private Value newValue(int val, Tag t) {
     Tag tag = new Tag();
     tag.setSeq(t.getSeq() + 1);
     tag.setCid(t.getCid());
