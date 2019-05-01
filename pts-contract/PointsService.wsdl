@@ -15,7 +15,6 @@
       <xs:element name="BadInitFault" type="tns:BadInitFault" />
       <xs:element name="InvalidEmailFault" type="tns:InvalidEmailFault" />
       <xs:element name="InvalidPointsFault" type="tns:InvalidPointsFault" />
-      <xs:element name="NotEnoughBalanceFault" type="tns:NotEnoughBalanceFault" />
       <xs:element name="ctrlClear" type="tns:ctrlClear" />
       <xs:element name="ctrlClearResponse" type="tns:ctrlClearResponse" />
       <xs:element name="ctrlInit" type="tns:ctrlInit" />
@@ -61,11 +60,6 @@
         <xs:sequence />
       </xs:complexType>
       <xs:complexType name="BadInitFault">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="message" type="xs:string" />
-        </xs:sequence>
-      </xs:complexType>
-      <xs:complexType name="NotEnoughBalanceFault">
         <xs:sequence>
           <xs:element minOccurs="0" name="message" type="xs:string" />
         </xs:sequence>
@@ -147,9 +141,6 @@
   <message name="InvalidPointsFault">
     <part element="tns:InvalidPointsFault" name="fault" />
   </message>
-  <message name="NotEnoughBalanceFault">
-    <part element="tns:NotEnoughBalanceFault" name="fault" />
-  </message>
 
   <!--  Port type (interface). -->
   <!--  Each operation has input, output and fault messages. -->
@@ -164,7 +155,6 @@
       <output message="tns:writeResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/writeResponse" />
       <fault message="tns:InvalidEmailFault" name="InvalidEmailFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/write/Fault/InvalidEmailFault" />
       <fault message="tns:InvalidPointsFault" name="InvalidPointsFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/write/Fault/InvalidPointsFault" />
-      <fault message="tns:NotEnoughBalanceFault" name="NotEnoughBalanceFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/write/Fault/NotEnoughBalanceFault" />
     </operation>
     <operation name="ctrlPing">
       <input message="tns:ctrlPing" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/ctrlPingRequest" />
@@ -209,9 +199,6 @@
       </fault>
       <fault name="InvalidPointsFault">
         <soap:fault name="InvalidPointsFault" use="literal" />
-      </fault>
-      <fault name="NotEnoughBalanceFault">
-        <soap:fault name="NotEnoughBalanceFault" use="literal" />
       </fault>
     </operation>
     <operation name="ctrlPing">

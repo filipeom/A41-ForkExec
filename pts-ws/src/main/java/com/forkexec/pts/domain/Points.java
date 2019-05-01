@@ -38,7 +38,7 @@ public class Points {
 	 */
 	private Map<String, AtomicInteger> accounts = new ConcurrentHashMap<>();
 
-  private Map<String, Tag> userTags = new ConcurrentHashMap<>();
+  private Map<String, Tag> accountTags = new ConcurrentHashMap<>();
 
 	// Singleton -------------------------------------------------------------
 
@@ -72,7 +72,7 @@ public class Points {
 	public void reset() {
 		// clear current hash map
 		accounts.clear();
-    userTags.clear();
+    accountTags.clear();
 		// set initial balance to default
 		initialBalance.set(DEFAULT_INITIAL_BALANCE);
 	}
@@ -116,25 +116,17 @@ public class Points {
 	}
 
 	/** Initialize account. */
-	public void initAccount(final String accountId)
-			throws EmailAlreadyExistsFaultException, InvalidEmailFaultException {
+	public void initAccount(final String accountId, Tag tag)
+			throws InvalidEmailFaultException {
 		checkValidEmail(accountId);
-		if (accounts.containsKey(accountId)) {
-			final String message = String.format("Account with email: %s already exists", accountId);
-			throw new EmailAlreadyExistsFaultException(message);
-		}
-		AtomicInteger points = accounts.get(accountId);
-		if (points == null) {
-			points = new AtomicInteger(initialBalance.get());
-			accounts.put(accountId, points);
-      Tag tag = new Tag();
-      tag.setSeq(0);
-      tag.setCid(0);
-      userTags.put(accountId, tag);
-		}
+
+		AtomicInteger points = new AtomicInteger(initialBalance.get());
+
+    accountTags.put(accountId, tag);
+		accounts.put(accountId, points);
 	}
 
-	/** Add points to account. */
+	/** Add points to account.
 	public void addPoints(final String accountId, final int pointsToAdd)
 			throws InvalidPointsFaultException, InvalidEmailFaultException {
 		checkValidEmail(accountId);
@@ -144,49 +136,44 @@ public class Points {
 		}
 		points.addAndGet(pointsToAdd);
 	}
+  */
 
-  public Tag getUserTag(final String accountId) {
-    if(!userTags.containsKey(accountId) && !accounts.containsKey(accountId)) {
-      Tag tag = new Tag();
-      tag.setSeq(0);
-      tag.setCid(0);
+  /** Tag getter */
+  public Tag getAccountTag(final String accountId) throws InvalidEmailFaultException
+   {
+    checkValidEmail(accountId);
 
-      userTags.put(accountId, tag);
-
-      AtomicInteger points = new AtomicInteger(initialBalance.get());
-      accounts.put(accountId, points);
+    if(!checkUser(accountId) && !checkUserTag(accountId)) {
+      Tag tag = new Tag(); tag.setSeq(0); tag.setCid(0);
+      initAccount(accountId, tag);
     }
-    return userTags.get(accountId);
+    return accountTags.get(accountId);
   }
 
-  public void setUserTag(final String accountId, Tag tag) {
-    if (!userTags.containsKey(accountId) && !accounts.containsKey(accountId)) {
-      AtomicInteger points = new AtomicInteger(initialBalance.get());
+  /** Tag setter */
+  public void setAccountTag(final String accountId, Tag tag) throws InvalidEmailFaultException {
+    checkValidEmail(accountId);
 
-      userTags.put(accountId, tag);
-      accounts.put(accountId, points);
+    if (!checkUser(accountId) && !checkUserTag(accountId)) {
+      initAccount(accountId, tag);
     } else {
-      userTags.replace(accountId, tag);
+      accountTags.replace(accountId, tag);
     }
   }
 
-	public void write(final String accountId, final int balance)
-		throws NotEnoughBalanceFaultException, InvalidEmailFaultException, InvalidPointsFaultException {
-		//TODO for now we ignore if user does not exists
-		// wait for read implementation
-
+	public void setAccountPoints(final String accountId, final int pointsToSet)
+		throws InvalidEmailFaultException, InvalidPointsFaultException {
 		checkValidEmail(accountId);
-		if (balance < 0)
-			throw new NotEnoughBalanceFaultException("Not enough points!");
-		if (balance <= 0)
+
+		if (pointsToSet <= 0)
 			throw new InvalidPointsFaultException("Value cannot be negative or zero!");
 
 		final AtomicInteger points = accounts.get(accountId);
 		if (points != null)
-			points.getAndSet(balance);
+			points.getAndSet(pointsToSet);
 	}
 
-	/** Remove points from account. */
+	/** Remove points from account.
 	public void removePoints(final String accountId, final int pointsToSpend)
 			throws InvalidEmailFaultException, NotEnoughBalanceFaultException, InvalidPointsFaultException {
 		checkValidEmail(accountId);
@@ -204,14 +191,19 @@ public class Points {
 			updatedBalance = balance - pointsToSpend;
 			if (updatedBalance < 0)
 				throw new NotEnoughBalanceFaultException();
-		} while(!points.compareAndSet(/* expected */ balance, updatedBalance));
+		} while(!points.compareAndSet(balance, updatedBalance));
 				// compareAndSet atomically sets the value to the given updated value
 				// if the current value == the expected value.
 				// returns true if successful, so we negate to exit loop
 	}
+  */
 
 	public boolean checkUser(final String accountId) {
 		return accounts.containsKey(accountId);
 	}
+
+  public boolean checkUserTag(final String accountId) {
+    return accountTags.containsKey(accountId);
+  }
 
 }

@@ -9,7 +9,6 @@ import javax.xml.ws.BindingProvider;
 import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
-import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 import com.forkexec.pts.ws.PointsPortType;
 import com.forkexec.pts.ws.PointsService;
 import com.forkexec.pts.ws.cli.PointsClient;
@@ -122,7 +121,7 @@ public class PointsFrontEnd {
 	}
 
 	public int addPoints(String userEmail, int pointsToAdd)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
 		PointsClient cli = null;
 		Value maxValue = null;
 		int currentSeq = 0;
@@ -156,8 +155,6 @@ public class PointsFrontEnd {
 			throw new InvalidPointsFault_Exception( e.getMessage(), e.getFaultInfo());
 		} catch (InvalidEmailFault_Exception e) {
 			throw new InvalidEmailFault_Exception( e.getMessage(), e.getFaultInfo());
-		} catch (NotEnoughBalanceFault_Exception e) {
-			throw new NotEnoughBalanceFault_Exception ( e.getMessage(), e.getFaultInfo());
 		}
 
 		if( numSuccess == nReplicas)
@@ -188,6 +185,9 @@ public class PointsFrontEnd {
 
 			Tag newTag = createTag(maxValue.getTag());
 			points = maxValue.getVal() - pointsToSpend;
+      if (points < 0) {
+        throw new NotEnoughBalanceFault_Exception("Not Enough Points to spend");
+      }
 
 			for(int i = 0; i < nReplicas; i++) {
 				cli = new PointsClient( uddiLookup(POINTS + Integer.toString(i+1) ) );
@@ -202,7 +202,7 @@ public class PointsFrontEnd {
 		} catch (InvalidEmailFault_Exception e) {
 			throw new InvalidEmailFault_Exception( e.getMessage(), e.getFaultInfo());
 		} catch (NotEnoughBalanceFault_Exception e) {
-			throw new NotEnoughBalanceFault_Exception ( e.getMessage(), e.getFaultInfo());
+      throw new NotEnoughBalanceFault_Exception(e.getMessage());
     } 
 
 		if( numSuccess == nReplicas)
@@ -261,4 +261,5 @@ public class PointsFrontEnd {
       throw new RuntimeException("Failed to lookup Points Service.");
     }
 	}
+
 }

@@ -28,10 +28,10 @@ public class PointsPortImpl implements PointsPortType {
 
   private final String FAILURE = "NACK";
 
-    /**
-     * The Endpoint manager controls the Web Service instance during its whole
-     * lifecycle.
-     */
+  /**
+   * The Endpoint manager controls the Web Service instance during its whole
+   * lifecycle.
+   */
   private final PointsEndpointManager endpointManager;
 
 
@@ -41,14 +41,16 @@ public class PointsPortImpl implements PointsPortType {
     this.endpointManager = endpointManager;
   }
 
-  // Main operations -------------------------------------------------------
+  //========================================================================
+  // MAIN OPERATATIONS
+  //========================================================================
 
   @Override
   public Value read(String userEmail) throws InvalidEmailFault_Exception {
     final Points points = Points.getInstance();
     try {
+      Tag tag = points.getAccountTag(userEmail);
       int value = points.getAccountPoints(userEmail);
-      Tag tag = points.getUserTag(userEmail);
       return createValue(value, tag);
     } catch (InvalidEmailFaultException e) {
       throwInvalidEmailFault(e.getMessage());
@@ -58,36 +60,28 @@ public class PointsPortImpl implements PointsPortType {
 
   @Override
   public String write(String userEmail, int points, Tag t)
-    throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+    throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
     final Points instance = Points.getInstance();
 
-    Tag tag = instance.getUserTag(userEmail);
-
     try {
-      if (t.getSeq() > tag.getSeq()) {
-        instance.setUserTag(userEmail, tag);
-        instance.write(userEmail, points);
+      Tag tag = instance.getAccountTag(userEmail);
 
+      if (t.getSeq() > tag.getSeq()) {
+        instance.setAccountTag(userEmail, tag);
+        instance.setAccountPoints(userEmail, points);
         return SUCCESS;
       }
     } catch (InvalidEmailFaultException e) {
       throwInvalidEmailFault(e.getMessage());
     } catch (InvalidPointsFaultException e) {
       throwInvalidPointsFault(e.getMessage());
-    } catch (NotEnoughBalanceFaultException e) {
-      throwNotEnoughBalanceFault(e.getMessage());
     }
     return FAILURE;
   }
-
-  public Value createValue(int val, Tag tag) {
-    Value value = new Value();
-    value.setVal(val);
-    value.setTag(tag);
-    return value;
-  }
-
-  // Control operations ----------------------------------------------------
+  
+  //========================================================================
+  // CONTROL OPERATIONS
+  //========================================================================
 
   /** Diagnostic operation to check if service is running. */
   @Override
@@ -119,8 +113,21 @@ public class PointsPortImpl implements PointsPortType {
   public void ctrlInit(final int startPoints) throws BadInitFault_Exception {
     Points.getInstance().setInitialBalance(startPoints);
   }
+  
+  //========================================================================
+  // VIEW HELPERS 
+  //========================================================================
 
-  // Exception helpers -----------------------------------------------------
+  public Value createValue(int val, Tag tag) {
+    Value value = new Value();
+    value.setVal(val);
+    value.setTag(tag);
+    return value;
+  }
+  
+  //========================================================================
+  // EXCEPTION HELPERS
+  //========================================================================
 
   /** Helper to throw a new BadInit exception. */
   private void throwBadInit(final String message) throws BadInitFault_Exception {
@@ -134,13 +141,6 @@ public class PointsPortImpl implements PointsPortType {
     final InvalidEmailFault faultInfo = new InvalidEmailFault();
     faultInfo.message = message;
     throw new InvalidEmailFault_Exception(message, faultInfo);
-  }
-
-  /** Helper to throw a new NotEnoughBalanceFault exception. */
-  private void throwNotEnoughBalanceFault(final String message) throws NotEnoughBalanceFault_Exception {
-    final NotEnoughBalanceFault faultInfo = new NotEnoughBalanceFault();
-    faultInfo.message = message;
-    throw new NotEnoughBalanceFault_Exception(message, faultInfo);
   }
 
   /** Helper to throw a new InvalidPointsFault exception. */

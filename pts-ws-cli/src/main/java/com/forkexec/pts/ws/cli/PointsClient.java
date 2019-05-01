@@ -9,12 +9,10 @@ import javax.xml.ws.BindingProvider;
 import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
-import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 import com.forkexec.pts.ws.PointsPortType;
 import com.forkexec.pts.ws.PointsService;
 import com.forkexec.pts.ws.Tag;
 import com.forkexec.pts.ws.Value;
-
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 
@@ -114,7 +112,7 @@ public class PointsClient {
 		return port.read(userEmail);
 	}
 
-	public String write(String userEmail, int points, Tag t) throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+	public String write(String userEmail, int points, Tag t) throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
 		return port.write(userEmail, points, t);
 	}
 
