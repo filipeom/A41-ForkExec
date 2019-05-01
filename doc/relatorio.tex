@@ -1,8 +1,11 @@
 \documentclass[a4paper]{article}
 
+\usepackage{graphicx}
+
 \usepackage{hyperref}
 \hypersetup{
-    colorlinks=true,      
+    colorlinks=true,
+    linkcolor=black,      
     urlcolor=blue,
 }
 \begin{document}
@@ -41,6 +44,12 @@
 	{\large\today}
 	\vfill
 \end{titlepage}
+
+\begin{titlepage}
+
+\tableofcontents
+\end{titlepage}
+
 \section{Definição do Modelo de Faltas}
 Assume-se que:
 \begin{itemize}
@@ -52,11 +61,51 @@ Assume-se que:
 \item Os gestores de réplicas podem falhar silenciosamente mas não arbitrariamente
 \item No máximo, existe uma minoria de gestores de réplica em falha em simultâneo
 \end{itemize}
-\section{Figura da Solução de Tolerância a Faltas}
-\section{Descrição da figura e breve explicação da solução}
+\section{Solução de Tolerância a Faltas}
+\begin{figure}[h!]
+	\includegraphics[scale=.3]{../../domainsimple.jpeg}
+	\caption{Simplificação do domínio da solução implementada}
+	\label{fig:domain}
+\end{figure}
+\section{Descrição e breve explicação da solução}
+
+Para manter a interface para o \textit{Hub} a	\textit{FrondEnd} do \textit{points} continua a implementar as funções necessárias para retornar os valores para o \textit{Hub}, no entanto esta classe implementa o protocolo de replicação ativa.
+
+Para o \textit{FrontEnd} o \textit{PointsClient} funciona apenas como ponto de ligação com o gestor de réplica.
 \section{Descrição de otimizações/simplificações}
 \section{Detalhe do protocolo (troca de mensagens)}
+\subsection{Funções no Gestor de Réplica}
+\subsubsection{\textit{read(String userEmail)}}
 \begin{itemize}
-\item 
+\item Ao receber \textit{read(userEmail)}:
+\begin{itemize}
+\item[1.] Vai buscar a \textit{tag} e os \textit{pontos} associados ao \textit{userEmail}
+\begin{itemize}
+\item[1.1.] Se \textit{userEmail} não existe no sistema, então adiciona.
 \end{itemize}
+\item[2.] responde com \textbf{$Value=< pontos, tag >$} associado ao utilizador, em que: $tag=< seq, cid>$
+\end{itemize}
+\end{itemize}
+\subsubsection{\textit{write(String userEmail, int points, Tag t)}}
+\begin{itemize}
+\item Ao receber \textit{write(userEmail,points, t)}:
+\begin{itemize}
+\item[1.] Vai buscar a \textit{tag} associada ao \textit{userEmail}
+\begin{itemize}
+\item[1.1.] Se \textit{userEmail} não existe no sistema, então adiciona.
+\end{itemize}
+\item[2.] Se \textit{t.getSeq() $>$ tag.getSeq()}:
+\begin{itemize}
+\item[2.1.] atualiza os \textit{pontos} do utilizador com \textit{points}
+\item[2.2.] atualiza a \textit{tag} do utilizador com \textit{t}
+\item[2.3.] responde \textit{ack}
+\end{itemize}
+\item[3.] Senão responde \textit{nack}
+\end{itemize}
+\end{itemize}
+\subsection{Funções no \textit{Front End}}
+\subsubsection{\textit{activateUser(String userEmail)}}
+\subsubsection{\textit{pointsBalance(String userEmail)}}
+\subsubsection{\textit{addPoints(String userEmail, int pointsToAdd)}}
+\subsubsection{\textit{spendPoints(String userEmail, int pointsToSpend)}}
 \end{document}

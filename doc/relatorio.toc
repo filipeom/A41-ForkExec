@@ -1,0 +1,13 @@
+\contentsline {section}{\numberline {1}Defini\IeC {\c c}\IeC {\~a}o do Modelo de Faltas}{1}{section.1}% 
+\contentsline {section}{\numberline {2}Solu\IeC {\c c}\IeC {\~a}o de Toler\IeC {\^a}ncia a Faltas}{1}{section.2}% 
+\contentsline {section}{\numberline {3}Descri\IeC {\c c}\IeC {\~a}o e breve explica\IeC {\c c}\IeC {\~a}o da solu\IeC {\c c}\IeC {\~a}o}{1}{section.3}% 
+\contentsline {section}{\numberline {4}Descri\IeC {\c c}\IeC {\~a}o de otimiza\IeC {\c c}\IeC {\~o}es/simplifica\IeC {\c c}\IeC {\~o}es}{2}{section.4}% 
+\contentsline {section}{\numberline {5}Detalhe do protocolo (troca de mensagens)}{2}{section.5}% 
+\contentsline {subsection}{\numberline {5.1}Fun\IeC {\c c}\IeC {\~o}es no Gestor de R\IeC {\'e}plica}{2}{subsection.5.1}% 
+\contentsline {subsubsection}{\numberline {5.1.1}\textit {read(String userEmail)}}{2}{subsubsection.5.1.1}% 
+\contentsline {subsubsection}{\numberline {5.1.2}\textit {write(String userEmail, int points, Tag t)}}{2}{subsubsection.5.1.2}% 
+\contentsline {subsection}{\numberline {5.2}Fun\IeC {\c c}\IeC {\~o}es no \textit {Front End}}{2}{subsection.5.2}% 
+\contentsline {subsubsection}{\numberline {5.2.1}\textit {activateUser(String userEmail)}}{2}{subsubsection.5.2.1}% 
+\contentsline {subsubsection}{\numberline {5.2.2}\textit {pointsBalance(String userEmail)}}{2}{subsubsection.5.2.2}% 
+\contentsline {subsubsection}{\numberline {5.2.3}\textit {addPoints(String userEmail, int pointsToAdd)}}{2}{subsubsection.5.2.3}% 
+\contentsline {subsubsection}{\numberline {5.2.4}\textit {spendPoints(String userEmail, int pointsToSpend)}}{2}{subsubsection.5.2.4}% 
