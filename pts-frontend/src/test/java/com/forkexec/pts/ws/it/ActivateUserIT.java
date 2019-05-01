@@ -64,6 +64,15 @@ public class ActivateUserIT extends BaseIT {
 	public void createUserDuplicateTest() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
 		client.activateUser(VALID_USER);
 		client.activateUser(VALID_USER);
+		client.activateUser(VALID_USER);
+		client.activateUser(VALID_USER);
+		client.activateUser(VALID_USER);
+		client.activateUser(VALID_USER);
+		client.activateUser(VALID_USER);
+		client.activateUser(VALID_USER);
+		client.activateUser(VALID_USER);
+		client.activateUser(VALID_USER);
+		client.activateUser(VALID_USER);
 	}
 
 	@Test(expected = InvalidEmailFault_Exception.class)

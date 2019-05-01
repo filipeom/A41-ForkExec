@@ -67,7 +67,7 @@ public class PointsPortImpl implements PointsPortType {
       Tag tag = instance.getAccountTag(userEmail);
 
       if (t.getSeq() > tag.getSeq()) {
-        instance.setAccountTag(userEmail, tag);
+        instance.setAccountTag(userEmail, t);
         instance.setAccountPoints(userEmail, points);
         return SUCCESS;
       }

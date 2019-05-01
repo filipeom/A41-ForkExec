@@ -126,24 +126,12 @@ public class Points {
 		accounts.put(accountId, points);
 	}
 
-	/** Add points to account.
-	public void addPoints(final String accountId, final int pointsToAdd)
-			throws InvalidPointsFaultException, InvalidEmailFaultException {
-		checkValidEmail(accountId);
-		final AtomicInteger points = getPoints(accountId);
-		if (pointsToAdd <= 0) {
-			throw new InvalidPointsFaultException("Value cannot be negative or zero!");
-		}
-		points.addAndGet(pointsToAdd);
-	}
-  */
-
   /** Tag getter */
   public Tag getAccountTag(final String accountId) throws InvalidEmailFaultException
    {
     checkValidEmail(accountId);
 
-    if(!checkUser(accountId) && !checkUserTag(accountId)) {
+    if(!checkUser(accountId)) {
       Tag tag = new Tag(); tag.setSeq(0); tag.setCid(0);
       initAccount(accountId, tag);
     }
@@ -154,7 +142,7 @@ public class Points {
   public void setAccountTag(final String accountId, Tag tag) throws InvalidEmailFaultException {
     checkValidEmail(accountId);
 
-    if (!checkUser(accountId) && !checkUserTag(accountId)) {
+    if (!checkUser(accountId)) {
       initAccount(accountId, tag);
     } else {
       accountTags.replace(accountId, tag);
@@ -173,37 +161,8 @@ public class Points {
 			points.getAndSet(pointsToSet);
 	}
 
-	/** Remove points from account.
-	public void removePoints(final String accountId, final int pointsToSpend)
-			throws InvalidEmailFaultException, NotEnoughBalanceFaultException, InvalidPointsFaultException {
-		checkValidEmail(accountId);
-		final AtomicInteger points = getPoints(accountId);
-		if (pointsToSpend <= 0) {
-			throw new InvalidPointsFaultException("Value cannot be negative or zero!");
-		}
-
-		// use atomic compare and set to make sure that
-		// between the read and the update the value has not changed.
-		// if it changed, try again
-		int balance, updatedBalance;
-		do {
-			balance = points.get();
-			updatedBalance = balance - pointsToSpend;
-			if (updatedBalance < 0)
-				throw new NotEnoughBalanceFaultException();
-		} while(!points.compareAndSet(balance, updatedBalance));
-				// compareAndSet atomically sets the value to the given updated value
-				// if the current value == the expected value.
-				// returns true if successful, so we negate to exit loop
-	}
-  */
-
 	public boolean checkUser(final String accountId) {
 		return accounts.containsKey(accountId);
 	}
-
-  public boolean checkUserTag(final String accountId) {
-    return accountTags.containsKey(accountId);
-  }
 
 }
