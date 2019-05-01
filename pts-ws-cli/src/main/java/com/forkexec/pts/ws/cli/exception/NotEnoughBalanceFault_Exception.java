@@ -1,4 +1,4 @@
-package com.forkexec.pts.ws.frontend;
+package com.forkexec.pts.ws.cli.exception;
 
 /**
  * 

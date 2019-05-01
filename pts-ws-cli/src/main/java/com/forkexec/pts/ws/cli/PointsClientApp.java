@@ -14,6 +14,7 @@ public class PointsClientApp {
 			System.err.println("Usage: java " + PointsClientApp.class.getName() + " wsURL OR uddiURL wsName");
 			return;
 		}
+    /*
 		String uddiURL = null;
 		String wsName = null;
 		String wsURL = null;
@@ -42,6 +43,7 @@ public class PointsClientApp {
 		String result = client.ctrlPing("client");
 		System.out.print("Result: ");
 		System.out.println(result);
+    */
 	}
 
 }

@@ -8,10 +8,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.forkexec.pts.ws.BadInitFault_Exception;
+
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
 
-import com.forkexec.pts.ws.frontend.EmailAlreadyExistsFault_Exception;
+import com.forkexec.pts.ws.cli.exception.*;
 
 public class AddPointsIT extends BaseIT {
 	@Before

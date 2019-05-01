@@ -8,10 +8,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
+import com.forkexec.pts.ws.InvalidPointsFault_Exception;
+import com.forkexec.pts.ws.BadInitFault_Exception;
 
-import com.forkexec.pts.ws.frontend.EmailAlreadyExistsFault_Exception;
+import com.forkexec.pts.ws.cli.exception.*;
 
 /*
  * Class tests if the user creation has succeeded or not
