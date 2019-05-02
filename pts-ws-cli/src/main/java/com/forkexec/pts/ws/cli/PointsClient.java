@@ -195,13 +195,6 @@ public class PointsClient {
 
       Value cacheValue = getUserValueFromCache(userEmail);
 
-      /*if (cacheValue == null) {
-        Value maxValue = getMaxValue(userEmail);
-        points = maxValue.getVal() + pointsToAdd;
-        setMaxValue(userEmail, newValue(points, maxValue.getTag()));
-        return points;
-      }*/
-
       points = cacheValue.getVal() + pointsToAdd;
       Value updateCacheValue = newValue(points, cacheValue.getTag());
 
@@ -222,18 +215,6 @@ public class PointsClient {
         throwInvalidPointsFault("Points cannot be negative!");
 
       Value cacheValue = getUserValueFromCache(userEmail);
-      //must throw an error
-
-      /*if (cacheValue == null) {
-        Value maxValue = getMaxValue(userEmail);
-        points = maxValue.getVal() - pointsToSpend;
-
-        if (points < 0)
-          throw new NotEnoughBalanceFault_Exception("Not Enough Points to spend");
-
-        setMaxValue(userEmail, newValue(points, maxValue.getTag()));
-        return points;
-      }*/
 
       points = cacheValue.getVal() - pointsToSpend;
       if (points < 0) {
