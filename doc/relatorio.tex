@@ -69,9 +69,9 @@ Assume-se que:
 \end{figure}
 \section{Descrição e breve explicação da solução}
 
-Para manter a interface para o \textit{Hub} a	\textit{FrondEnd} do \textit{points} continua a implementar as funções necessárias para retornar os valores para o \textit{Hub}, no entanto esta classe implementa o protocolo de replicação ativa.
+Para manter a interface para o \textit{Hub} a	\textit{FrondEnd} do \textit{points} continua a implementar as funções necessárias para retornar os valores para o \textit{Hub}, no entanto esta classe apenas resolve a procura das replicas e reencaminha os pedidos para um \textit{PointsClient}.
 
-Para o \textit{FrontEnd} o \textit{PointsClient} funciona apenas como ponto de ligação com o gestor de réplica.
+No \textit{PointsClient} foi implementado o algoritmo \textit{QC} que será descrito com mais detalhe no final do relatório.
 \section{Descrição de otimizações/simplificações}
 \section{Detalhe do protocolo (troca de mensagens)}
 \subsection{Funções no Gestor de Réplica}
@@ -103,7 +103,7 @@ Para o \textit{FrontEnd} o \textit{PointsClient} funciona apenas como ponto de l
 \item[3.] Senão responde \textit{nack}
 \end{itemize}
 \end{itemize}
-\subsection{Funções no \textit{Front End}}
+\subsection{Funções no \textit{Points Client}}
 \subsubsection{\textit{activateUser(String userEmail)}}
 \subsubsection{\textit{pointsBalance(String userEmail)}}
 \subsubsection{\textit{addPoints(String userEmail, int pointsToAdd)}}

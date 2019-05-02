@@ -6,7 +6,7 @@
 \contentsline {subsection}{\numberline {5.1}Fun\IeC {\c c}\IeC {\~o}es no Gestor de R\IeC {\'e}plica}{2}{subsection.5.1}% 
 \contentsline {subsubsection}{\numberline {5.1.1}\textit {read(String userEmail)}}{2}{subsubsection.5.1.1}% 
 \contentsline {subsubsection}{\numberline {5.1.2}\textit {write(String userEmail, int points, Tag t)}}{2}{subsubsection.5.1.2}% 
-\contentsline {subsection}{\numberline {5.2}Fun\IeC {\c c}\IeC {\~o}es no \textit {Front End}}{2}{subsection.5.2}% 
+\contentsline {subsection}{\numberline {5.2}Fun\IeC {\c c}\IeC {\~o}es no \textit {Points Client}}{2}{subsection.5.2}% 
 \contentsline {subsubsection}{\numberline {5.2.1}\textit {activateUser(String userEmail)}}{2}{subsubsection.5.2.1}% 
 \contentsline {subsubsection}{\numberline {5.2.2}\textit {pointsBalance(String userEmail)}}{2}{subsubsection.5.2.2}% 
 \contentsline {subsubsection}{\numberline {5.2.3}\textit {addPoints(String userEmail, int pointsToAdd)}}{2}{subsubsection.5.2.3}% 
