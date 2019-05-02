@@ -24,9 +24,9 @@
 		\begin{flushleft}
 		\large
 		\textit{Autores}\\
-		Filipe Marques\\
-		Jorge Martins\\
-		Paulo Dias
+		86411 - Filipe Marques\\
+		86456 - Jorge Martins\\
+		86492 - Paulo Dias
 		\end{flushleft}
 	\end{minipage}
 	~
@@ -73,6 +73,11 @@ Para manter a interface para o \textit{Hub} a	\textit{FrondEnd} do \textit{point
 
 No \textit{PointsClient} foi implementado o algoritmo \textit{QC} que será descrito com mais detalhe no final do relatório.
 \section{Descrição de otimizações/simplificações}
+   O algoritmo \textit{Quorum Consensus} suporta vários clientes.  E sempre que se pretende atualizar as replicas é necessário primeiro obter a \textit{tag} máxima de entre todas as replicas. No entanto como foi explicito no enunciado podemos assumir que apenas existe um cliente.
+   
+   Desta forma decidimos implementar uma cache no \textit{PointsClient} que guardava as informações de cada utilizador (\textit{tag} e \textit{points}), com o objetivo de deixar de fazer \textit{reads} antes de \textit{writes}, evitando-se o tempo de consultar as replicas, sendo apenas necessário ir consultar a cache. Assim as replicas continuam com a informação dos utilizadores correta, e a funcionar normalmente. Esta otimização funciona pois apenas existe um cliente e toda a informação passa por este.
+   
+   Por exemplo se existissem dois clientes esta otimização não funcionaria pois o cliente 1 poderia ter na \textit{cache} o valor X enquanto o cliente 2 escrevia nas replicas Y,   e quando fosse pedido o valor ao cliente 1 este não consultaria as replicas apenas a cache e devolveria e devolveria X, tornando-se um algoritmo inconsistente.
 \section{Detalhe do protocolo (troca de mensagens)}
 \subsection{Funções no Gestor de Réplica}
 \subsubsection{\textit{read(String userEmail)}}
@@ -104,8 +109,76 @@ No \textit{PointsClient} foi implementado o algoritmo \textit{QC} que será desc
 \end{itemize}
 \end{itemize}
 \subsection{Funções no \textit{Points Client}}
+\subsubsection{Simplificação}
+Para simplificar e reduzir a quantidade de texto repetido vamos definir o comportamento das seguintes funções:\\
+\\
+\textbf{getMaxValue(String userEmail)}
+\begin{itemize}
+\item Para cada replica:
+\begin{itemize}
+\item faz uma chamada assíncrona (\textit{readAsync(userEmail)}) para ir buscar o \textit{maxValue}
+\end{itemize}
+\item Enquanto o \textit{numRespostas} for menor que \textit{Q}.
+\begin{itemize}
+\item Para cada chamada
+\begin{itemize}
+\item Se já chegou, guarda o \textit{Value}
+\item \textit{numRespostas++}
+\end{itemize}
+\end{itemize}
+\item Determina e retorna \textit{maxValue}
+\end{itemize}
+\textbf{setMaxValue(String userEmail, Value value)}
+\begin{itemize}
+\item Para cada replica:
+\begin{itemize}
+\item executa \textit{writeAsync(userEmail, value.getVal(), value.getTag())}
+\end{itemize}
+\item Enquanto \textit{numRespostas} for menor que \textit{Q}
+\begin{itemize}
+\item Para cada chamada
+\begin{itemize}
+\item Se foi recebido \textit{ack}, \textit{numRespostas++}
+\end{itemize}
+\end{itemize}
+\item Fim
+\end{itemize}
 \subsubsection{\textit{activateUser(String userEmail)}}
+\begin{itemize}
+\item maxValue = getMaxValue(userEmail)
+\item Se a sequencia associada ao \textit{maxValue} é maior que 0 então é porque o utilizador existe e:
+\begin{itemize}
+\item \textit{throw EmailAlreadyExists}
+\end{itemize}
+\item Senão:
+\begin{itemize}
+\item \textit{setMaxValue(userEmail, newValue(maxValue.getVal(), maxValue.getTag()))}
+\item \textit{addUserToCache(userEmail, maxValue)}
+\end{itemize}
+\end{itemize}
 \subsubsection{\textit{pointsBalance(String userEmail)}}
+\begin{itemize}
+\item vai buscar o valor associado ao userEmail à cache
+\begin{itemize}
+\item senão existe:
+\begin{itemize}
+\item \textit{throw InvalidEmail}
+\end{itemize}
+\end{itemize}
+\item \textit{return valueFromCache}
+\end{itemize}
 \subsubsection{\textit{addPoints(String userEmail, int pointsToAdd)}}
+\begin{itemize}
+\item \textit{value} = valor associado a \textit{userEmail} na cache
+\item \textit{points} = \textit{value.getVal()} + \textit{pointsToAdd}
+\item \textit{setMaxValue(userEmail, newValue(points, value.getTag()))}
+\item atualizar a cache
+\end{itemize}
 \subsubsection{\textit{spendPoints(String userEmail, int pointsToSpend)}}
+\begin{itemize}
+\item \textit{value} = valor associado a \textit{userEmail} na cache
+\item \textit{points} = \textit{value.getVal()} + \textit{pointsToAdd}
+\item \textit{setMaxValue(userEmail, newValue(points, value.getTag()))}
+\item atualizar a cache
+\end{itemize}
 \end{document}
