@@ -177,7 +177,7 @@ Para simplificar e reduzir a quantidade de texto repetido vamos definir o compor
 \subsubsection{\textit{spendPoints(String userEmail, int pointsToSpend)}}
 \begin{itemize}
 \item \textit{value} = valor associado a \textit{userEmail} na cache
-\item \textit{points} = \textit{value.getVal()} + \textit{pointsToAdd}
+\item \textit{points} = \textit{value.getVal()} - \textit{pointsToAdd}
 \item \textit{setMaxValue(userEmail, newValue(points, value.getTag()))}
 \item atualizar a cache
 \end{itemize}
