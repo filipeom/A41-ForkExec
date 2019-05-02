@@ -140,17 +140,29 @@ public class PointsClient {
     }
   }
 
-  private void setMaxValue(String userEmail, Value value) throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+  private void setMaxValue(String userEmail, Value value)
+          throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+    ArrayList<Response<WriteResponse>> responses = new ArrayList<>(ports.size());
+    int n = 0;
+
     try {
       checkValidEmail(userEmail);
 
       for (int i = 0; i < ports.size(); i++) {
         port = ports.get(i);
-        write(userEmail, value.getVal(), value.getTag());
+        responses.add(writeAsync(userEmail, value.getVal(), value.getTag()));
       }
-    } catch (InvalidPointsFault_Exception e) {
-      throw new InvalidPointsFault_Exception( e.getMessage(), e.getFaultInfo());
-    } catch (InvalidEmailFault_Exception e) {
+
+      while (n < this.Q) {
+        for (int i = 0; i < responses.size(); i++) {
+          if (responses.get(i).isDone()) {
+            responses.remove(i);
+            n++; break;
+          }
+        }
+      }
+
+    }  catch (InvalidEmailFault_Exception e) {
       throw new InvalidEmailFault_Exception(e.getMessage(), e.getFaultInfo());
     }
   }
