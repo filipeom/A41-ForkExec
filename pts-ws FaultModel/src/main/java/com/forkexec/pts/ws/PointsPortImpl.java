@@ -51,11 +51,19 @@ public class PointsPortImpl implements PointsPortType {
 
     final Points points = Points.getInstance();
     try {
+
+      //FaultModel
+      String wsName = endpointManager.getWsName();
+      if( endpointManager.getWsName().equals("A41_Points1") )
+        Thread.sleep(30000);
+
       Tag tag = points.getAccountTag(userEmail);
       int value = points.getAccountPoints(userEmail);
       return createValue(value, tag);
     } catch (InvalidEmailFaultException e) {
       throwInvalidEmailFault(e.getMessage());
+    } catch (InterruptedException e) {
+      throw new RuntimeException("Interrupted Exception");
     }
     return null;
   }
