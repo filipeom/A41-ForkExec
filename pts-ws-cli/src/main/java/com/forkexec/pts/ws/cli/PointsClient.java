@@ -6,22 +6,14 @@ import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Map;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.concurrent.ExecutionException;
 
 import javax.xml.ws.Response;
 import javax.xml.ws.BindingProvider;
 
-import com.forkexec.pts.ws.BadInitFault_Exception;
-import com.forkexec.pts.ws.InvalidEmailFault_Exception;
-import com.forkexec.pts.ws.InvalidPointsFault_Exception;
-import com.forkexec.pts.ws.InvalidPointsFault;
-import com.forkexec.pts.ws.PointsPortType;
-import com.forkexec.pts.ws.PointsService;
-import com.forkexec.pts.ws.Tag;
-import com.forkexec.pts.ws.Value;
-import com.forkexec.pts.ws.ReadResponse;
-import com.forkexec.pts.ws.WriteResponse;
+import com.forkexec.pts.ws.*;
 
 import com.forkexec.pts.ws.cli.exception.*;
 
@@ -40,7 +32,11 @@ public class PointsClient {
 
   ArrayList<PointsPortType> ports = new ArrayList<>();
 
+  /** Quorum*/
   private int Q = 0;
+
+  /** cache to store points and tag associated with each user */
+  private Map<String, Value> cache = new ConcurrentHashMap<>();
 
   /** WS end point address */
   private Collection<String> wsURLs;
@@ -174,45 +170,82 @@ public class PointsClient {
       throw new EmailAlreadyExistsFault_Exception("Email already in use.");
 
     try {
+      //register user on replicas
       setMaxValue(userEmail, newValue(maxValue.getVal(), maxValue.getTag()));
+
+      //register user on cache
+      addUserToCache(userEmail, maxValue);
+
     } catch (InvalidPointsFault_Exception e) {
       throw new RuntimeException(e.getMessage());
     }
   }
 
   public int pointsBalance(String userEmail) throws InvalidEmailFault_Exception {
-    return getMaxValue(userEmail).getVal();
+    Value value = getUserValueFromCache(userEmail);
+    return value.getVal();
   }
 
   public int addPoints(String userEmail, int pointsToAdd)
       throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+      int points = 0;
 
       if (pointsToAdd <= 0)
         throwInvalidPointsFault("Points cannot be negative!");
 
-      Value maxValue = getMaxValue(userEmail);
+      Value cacheValue = getUserValueFromCache(userEmail);
 
-      int points = maxValue.getVal() + pointsToAdd;
+      /*if (cacheValue == null) {
+        Value maxValue = getMaxValue(userEmail);
+        points = maxValue.getVal() + pointsToAdd;
+        setMaxValue(userEmail, newValue(points, maxValue.getTag()));
+        return points;
+      }*/
 
-      setMaxValue(userEmail, newValue(points, maxValue.getTag()));
+      points = cacheValue.getVal() + pointsToAdd;
+      Value updateCacheValue = newValue(points, cacheValue.getTag());
+
+      //store information on replicas
+      setMaxValue(userEmail, updateCacheValue);
+
+      //keep cache consistent
+      updateUserCacheValue(userEmail, updateCacheValue);
 
       return points;
   }
 
   public int spendPoints(String userEmail, int pointsToSpend)
       throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+      int points = 0;
 
       if (pointsToSpend <= 0)
         throwInvalidPointsFault("Points cannot be negative!");
 
-      Value maxValue = getMaxValue(userEmail);
+      Value cacheValue = getUserValueFromCache(userEmail);
+      //must throw an error
 
-      int points = maxValue.getVal() - pointsToSpend;
+      /*if (cacheValue == null) {
+        Value maxValue = getMaxValue(userEmail);
+        points = maxValue.getVal() - pointsToSpend;
+
+        if (points < 0)
+          throw new NotEnoughBalanceFault_Exception("Not Enough Points to spend");
+
+        setMaxValue(userEmail, newValue(points, maxValue.getTag()));
+        return points;
+      }*/
+
+      points = cacheValue.getVal() - pointsToSpend;
       if (points < 0) {
         throw new NotEnoughBalanceFault_Exception("Not Enough Points to spend");
       }
+      Value updateCacheValue = newValue(points, cacheValue.getTag());
 
-      setMaxValue(userEmail, newValue(points, maxValue.getTag()));
+      //store information on replicas
+      setMaxValue(userEmail, updateCacheValue);
+
+      //keep cache consistent
+      updateUserCacheValue(userEmail, updateCacheValue);
 
       return points;
   }
@@ -228,6 +261,20 @@ public class PointsClient {
     return value;
   }
 
+  private void addUserToCache(final String userEmail, final Value value) {
+    if (!cache.containsKey(userEmail))
+      cache.put(userEmail, value);
+  }
+
+  private Value getUserValueFromCache(final String userEmail) throws InvalidEmailFault_Exception {
+    Value value = cache.get(userEmail);
+    if (value == null) throw new InvalidEmailFault_Exception("Account/User does not exists", null);
+    return value;
+  }
+
+  private void updateUserCacheValue(final String userEmail, Value value) {
+    cache.replace(userEmail, value);
+  }
   // remote invocation methods ----------------------------------------------
 
   public Value read(String userEmail) throws InvalidEmailFault_Exception {
@@ -276,4 +323,5 @@ public class PointsClient {
     faultInfo.setMessage(message);
     throw new InvalidPointsFault_Exception(message, faultInfo);
   }
+
 }
