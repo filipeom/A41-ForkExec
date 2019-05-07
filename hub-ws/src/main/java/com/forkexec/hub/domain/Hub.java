@@ -37,12 +37,12 @@ public class Hub {
   /**
    * Pattern for identifiers.
    */
-  private static Pattern validString = Pattern.compile("^[a-zA-Z0-9_-]+$");
+  private static Pattern validString = Pattern.compile("^[\\p{Alnum}\\-'._]+$", Pattern.UNICODE_CHARACTER_CLASS);
 
   /**
    * Pattern for emails.
    */
-  private static Pattern validEmail = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+  private static Pattern validEmail = Pattern.compile("(\\w\\.?)*\\w+@\\w+(\\.?\\w)*", Pattern.CASE_INSENSITIVE);
 
   /**
    * A comparator for food based on price.
